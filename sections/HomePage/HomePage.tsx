@@ -1,6 +1,6 @@
 'use client'
 import { useProductStore } from "store/product/useProductStore";
-import FlashDealCard from "app/dashboard/components/FlashDealCard/FlashDealCard";
+import DealCard from "app/dashboard/components/DealCard/DealCard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import {ArrowRight, Tractor } from "lucide-react";
@@ -33,9 +33,12 @@ const HomePage = () => {
   const DailyDeals = useProductStore((state)=>(state.dailyDeals))
   const popularProducts = useProductStore((state)=>(state.popularProducts))
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-  const HolidayDeals = useProductStore((state)=>state.HolidayDeals)
+  const authUser = useAuthStore((state)=>state.authUser)
+  const fetchFavoriteIds = useProductStore((state)=>state.fetchFavoriteIds);
+  const setFavoritesFor = useProductStore(state => state.setFavoritesFor);
+  const HolidayDeals = useProductStore((state)=>state.HolidayDeals);
 
-  const dailyDealEnd = DailyDeals[0]?.discount?.endDate;
+
 
 
   
@@ -48,16 +51,40 @@ const HomePage = () => {
     fetchHolidayDeals()
   }, [])
 
+  
   useEffect(() => {
-    console.log('fetching daily deals...')
-    fetchDailyDeals();
-  }, []);
+    const fetchData = async () => {
+      await fetchDailyDeals();
+
+      if (authUser?.id) {
+        await fetchFavoriteIds(authUser.id);
+
+        // Merge favorites into daily deals AFTER fetching IDs
+        const ids = useProductStore.getState().favoriteIds; // get latest ids
+        setFavoritesFor("dailyDeals", ids);
+        setFavoritesFor("popularProducts", ids);
+      setFavoritesFor("HolidayDeals", ids);
+        console.log("Merged daily deals with favorites:", ids);
+      } else {
+        console.log("No auth user yet");
+      }
+    };
+
+    // Only run if auth check is done
+    if (!isCheckingAuth) {
+      fetchData();
+    }
+  }, [authUser, isCheckingAuth]);
+
 
 
   useEffect(() => {
     if (!DailyDeals || DailyDeals.length === 0) return;
 
-    const end = new Date(DailyDeals[0].discount.endDate).getTime();
+    const first = DailyDeals[0];
+    if (!first.discount) return;
+
+    const end = new Date(first.discount.endDate).getTime();
 
     const interval = setInterval(() => {
       const diff = end - Date.now();
@@ -199,12 +226,22 @@ const HomePage = () => {
 
             </div>
 
-            {/* Deals Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-              {DailyDeals.slice(0, 5).map((deal) => (
-                <FlashDealCard key={deal.id} deal={deal} />
-              ))}
+
+            <div className="w-full">
+              {/* Deals Grid */}
+              <div className="hidden md:grid grid-cols-2 lg:grid-cols-5 gap-4 ">
+                {DailyDeals.slice(0, 5).map((deal) => (
+                  <DealCard key={deal.id} deal={deal} />
+                ))}
+              </div>
+
+
+              {/* Mobile slider */}
+              <div className="md:hidden">
+                <MobileProductSlider products={DailyDeals} />
+              </div>
             </div>
+
 
           </div>
         </section>
@@ -226,7 +263,7 @@ const HomePage = () => {
                 </span>
 
                 <h2 className="text-3xl font-extrabold text-red-900">
-                  Holiday Discounts Up to 50% Off
+                  Holiday Discounts Up to 30% Off
                 </h2>
 
                 <p className="text-sm text-red-900/80 mt-1 max-w-md">
@@ -250,43 +287,27 @@ const HomePage = () => {
 
             </div>
 
+
+          <div className="w-full">
             {/* Deals Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-5 gap-4 ">
               {HolidayDeals.slice(0, 5).map((deal) => (
-                <FlashDealCard key={deal.id} deal={deal} />
+                <DealCard key={deal.id} deal={deal} />
               ))}
             </div>
+
+
+            {/* Mobile slider */}
+            <div className="md:hidden">
+              <MobileProductSlider products={HolidayDeals} />
+            </div>
+          </div>
+
+            
 
           </div>
         </section>
       )}
-
-
-
-
-      {/* Services Section */}
-      {/* <section className="bg-white py-8 border-t">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { icon: Truck, title: "Farm Fresh Delivery", desc: "Direct from farm to your door", color: "text-green-600" },
-              { icon: Shield, title: "Quality Guarantee", desc: "100% fresh or money back", color: "text-blue-600" },
-              { icon: Leaf, title: "Organic Certified", desc: "Pesticide-free produce", color: "text-emerald-600" },
-              { icon: Award, title: "Local Farmers", desc: "Supporting local agriculture", color: "text-orange-600" }
-            ].map((service, index) => (
-              <div key={index} className="flex items-center gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center ${service.color}`}>
-                  <service.icon className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">{service.title}</h3>
-                  <p className="text-sm text-gray-600">{service.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section> */}
 
       {/* Popular Products */}
       <section className="bg-white py-10">

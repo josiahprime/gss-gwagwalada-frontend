@@ -38,6 +38,7 @@ export interface AuthUser {
   authProvider?: string;
   isGoogleUser?: boolean;
   profilePic: string;
+  verified?: boolean;
 }
 
 
@@ -81,7 +82,7 @@ export interface AuthActions {
   fetchUser: () => Promise<void>;
   verifyEmail: (data: VerifyEmailPayload) => Promise<boolean>;
   updateProfile: (data: UpdateProfilePayload) => Promise<void>;
-  requestPasswordReset: (email: string) => Promise<void>;
+   requestPasswordReset: (email: string) => Promise<{ success: boolean; message: string }>;
   resetPassword: (data: ResetPasswordPayload) => Promise<boolean>;
   getAuthMethod: () => string;
   getRole: () => string;

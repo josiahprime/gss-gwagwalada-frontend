@@ -36,6 +36,7 @@ const MobileProductSlider = ({ products }: Props) => {
               priceInKobo={product.priceInKobo}
               unitType={product.unitType}
               isFavorite={product.isFavorite ?? false}
+              stock={product.stock}
             />
           </div>
         ))}

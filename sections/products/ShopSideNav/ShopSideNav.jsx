@@ -2,7 +2,7 @@ import React from "react";
 // import Brand from "./shopBy/Brand";
 import Category from "./shopBy/Category";
 import Color from "./shopBy/Color";
-import Price from "./shopBy/Price";
+import Price from './shopBy/Price'
 
 const ShopSideNav = () => {
   return (

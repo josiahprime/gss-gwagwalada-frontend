@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCartStore } from 'store/cart/useCartStore';
 import { useAuthStore } from 'store/auth/useAuthStore';
 import { useProductStore } from 'store/product/useProductStore';
@@ -31,7 +31,8 @@ type Product = {
   rating?: number;
   unitType: string; // e.g. 'per lb', 'each', etc.
   isFavorite: boolean;
-  discount?: Discount
+  discount?: Discount;
+  stock: number;
 };
 
 // Utility: consistent pseudo-random rating based on product ID
@@ -54,7 +55,8 @@ export const ProductCard: React.FC<Product> = ({
   rating,
   unitType,
   isFavorite,
-  discount
+  discount,
+  stock
 }: Product) => {
   const [cartClicked, setCartClicked] = useState(false);
   const [localFavorite, setLocalFavorite] = useState(isFavorite);
@@ -63,6 +65,10 @@ export const ProductCard: React.FC<Product> = ({
   const toggleFavorite = useProductStore((state) => state.toggleFavorite);
   const authUser = useAuthStore((state) => state.authUser);
   const userId = authUser?.id;
+
+  useEffect(() => {
+    setLocalFavorite(isFavorite);
+  }, [isFavorite]);
   
 
   const hasDiscount = discount && discount.isActive;
@@ -94,7 +100,7 @@ export const ProductCard: React.FC<Product> = ({
       productId: id,         // used for backend
       productName,
       image,
-      priceInKobo,
+      priceInKobo: hasDiscount ? discountedPrice : priceInKobo,
       quantity: 1,
       unitType,
     });
@@ -137,6 +143,7 @@ export const ProductCard: React.FC<Product> = ({
     >
       <div className="bg-white rounded-xl shadow-md overflow-hidden h-full flex flex-col relative transition-transform  hover:scale-[1.02]">
         <div className="relative">
+
           {image && (
             <Image
               src={image}
@@ -147,14 +154,17 @@ export const ProductCard: React.FC<Product> = ({
             />
           )}
 
-          {hasDiscount && (
-            <span
-              className="absolute bottom-2 right-2 bg-red-600 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded"
-            >
+          {/* Discount badge or Out-of-stock badge */}
+          {stock <= 0 ? (
+            <div className="absolute bottom-2 right-2 bg-red-600 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded shadow-md">
+              OUT OF STOCK
+            </div>
+          ) : hasDiscount ? (
+            <span className="absolute bottom-2 right-2 bg-red-600 text-white text-[10px] sm:text-xs font-bold px-2 py-1 rounded">
               -{discount.value}
               {discount.type === "PERCENTAGE" ? "%" : " NGN"}
             </span>
-          )}
+          ) : null}
 
 
           {authUser && (
@@ -177,14 +187,21 @@ export const ProductCard: React.FC<Product> = ({
           )}
 
           <motion.button
-            whileTap={{ scale: 1.3 }}
-            onClick={handleAddToCart}
-            animate={cartClicked ? { scale: 1.2 } : { scale: 1 }}
-            transition={{ type: 'spring', stiffness: 300 }}
-            className="absolute top-2 right-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full p-1 shadow-md"
-          >
-            <FiShoppingCart size={20} className="text-teal-900" />
-          </motion.button>
+          whileTap={{ scale: stock > 0 ? 1.3 : 1 }}
+          onClick={handleAddToCart}
+          animate={cartClicked ? { scale: 1.2 } : { scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300 }}
+          disabled={stock <= 0}
+          className="absolute top-2 right-2 rounded-full p-1 shadow-md bg-white bg-opacity-90 hover:bg-opacity-100"
+        >
+          <div className="relative">
+            <FiShoppingCart
+              size={20}
+              className={`${stock <= 0 ? 'text-red-600 opacity-70' : 'text-teal-900'}`}
+            />
+          </div>
+        </motion.button>
+
         </div>
 
         <div className="p-2 sm:p-4 flex-1 flex flex-col">

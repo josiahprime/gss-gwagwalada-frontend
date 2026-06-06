@@ -44,6 +44,7 @@ fetchReviews: async (productId: string) => {
       id: `temp-${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date().toISOString(),
       user: {
+        id: `temp-${Math.random().toString(36).substr(2, 9)}`, 
         name: "You",
         profilePic: "/placeholder-profile.png", // or any temporary image
       },

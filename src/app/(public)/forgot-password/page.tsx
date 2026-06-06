@@ -2,30 +2,49 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useAuthStore } from 'store/auth/useAuthStore';
+import InfoModal from 'app/components/Modal/InfoModal';
+import { Mail } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // const { requestPasswordReset, isRequestingReset } = useAuthStore();
   const requestPasswordReset = useAuthStore((state)=>(state.requestPasswordReset))
   const isRequestingReset = useAuthStore((state)=>(state.isRequestingReset))
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await requestPasswordReset(email);
+
+    const result = await requestPasswordReset(email);
+
+    if (result?.success) {
+      // Open the modal on success
+      setIsModalOpen(true);
+    } else {
+      // Optionally show error toast
+      toast.error(result?.message || "Failed to send reset link. Try again.");
+    }
   };
+
 
   return (
     <div className="flex h-screen">
       {/* Left Side */}
-      <div
-        className="w-1/2 bg-cover bg-center"
-        style={{ backgroundImage: `url('/images/login.jpg')` }}
-      >
-        <div className="flex flex-col justify-center h-full text-white p-12">
+      <div className="w-1/2 relative h-full">
+        <Image
+          src="https://res.cloudinary.com/djmnjen6v/image/upload/v1762093790/loginPageImg1_woqvmm.jpg"
+          alt="Login background"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 flex flex-col justify-center text-white p-12">
           <h1 className="text-4xl font-bold mb-4">Reset Your Password</h1>
           <p className="text-lg">Enter your email to receive a password reset link.</p>
         </div>
       </div>
+
 
       {/* Right Side */}
       <div className="w-1/2 flex items-center justify-center bg-gray-50">
@@ -83,7 +102,17 @@ const ForgotPassword = () => {
           </p>
         </div>
       </div>
+
+      <InfoModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Check your email!"
+        message="We sent a password reset link. Check your inbox or spam folder."
+        buttonText="Ok, got it"
+        Icon={Mail}
+      />
     </div>
+    
   );
 };
 

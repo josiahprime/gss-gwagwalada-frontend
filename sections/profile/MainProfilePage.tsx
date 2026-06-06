@@ -47,32 +47,31 @@ const Profile = () => {
 
 
   return (
-    <div className="container mx-auto md:px-4 md:py-8 ">
-      
-
+    <div className="container mx-auto md:px-4 md:py-8">
       {/* ===== MAIN LAYOUT ===== */}
-      <div className="flex-col md:flex-row gap-6 hidden md:flex">
+      <div className="hidden md:flex gap-6">
+
         {/* Sidebar (Desktop only) */}
-        <div className="hidden md:block w-80 flex-shrink-0">
+        <div className="w-80 shrink-0">
           <ProfileSidebar
             activeSection={activeSection}
             onSectionChange={handleSectionChange}
           />
         </div>
 
-        
-
         {/* Content */}
-        <div className="flex-1">
+        <div className="flex-1 max-h-[calc(100vh+170px)] overflow-y-auto pr-2 custom-scroll">
           <ProfileContent activeSection={activeSection} />
         </div>
       </div>
 
+      {/* Mobile version */}
       <div className="md:hidden block">
-        <ProfileMobile/>
+        <ProfileMobile />
       </div>
     </div>
   );
+
 }
 
 

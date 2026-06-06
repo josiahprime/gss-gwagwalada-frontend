@@ -24,6 +24,8 @@ const SignupMobile = () => {
   const signup = useAuthStore((state) => state.signup);
   const signupWithGoogle = useAuthStore((state) => state.signupWithGoogle);
   const isSigningUp = useAuthStore((state) => state.isSigningUp);
+  const authUser = useAuthStore((state)=>state.authUser)
+  
 
   
 
@@ -33,6 +35,14 @@ const SignupMobile = () => {
     password: "",
     confirmPassword: "",
   });
+
+  useEffect(() => {
+    if (authUser) {
+      // Redirect logged-in users away from login page
+      router.replace("/"); // or "/dashboard" if you have a dashboard
+    }
+  }, [authUser, router]);
+
 
   const handleGoogleResponse = useCallback(
     async (response: GoogleCredentialResponse) => {

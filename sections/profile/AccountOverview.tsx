@@ -8,13 +8,66 @@ import {
   Star,
   Gift,
 } from "lucide-react";
+import Link from "next/link";
 import { useAuthStore } from "store/auth/useAuthStore";
+import useAccountStore from "store/account/useAccountStore";
+import { useOrderStore } from "store/order/useOrderStore";
 import Button from "app/components/Button/Button";
 import Image from "next/image";
+import {useState, useEffect } from "react";
 
 export function AccountOverview() {
+   // Zustand store
+  const {
+    fullName,
+    email,
+    state,
+    city,
+    address: streetAddress,
+    landmark,
+    postalCode,
+    fetchAddress,
+  } = useAccountStore();
+  const fetchOrders = useOrderStore((state)=>state.fetchOrders)
+  const orders = useOrderStore((state)=>state.orders)
   const authUser = useAuthStore((state) => state.authUser);
   const firstName = authUser?.username?.split(" ")[0] || "Guest";
+
+  const [orderCount, setOrderCount] = useState(0);
+
+  useEffect(() => {
+    fetchAddress();
+  }, [fetchAddress]);
+
+  useEffect(() => {
+    const getOrders = async () => {
+      await fetchOrders();  // fetch orders from backend
+      setOrderCount(orders.length); // update the count after fetch
+    };
+
+    getOrders();
+  }, [fetchOrders, orders.length]);
+
+  
+
+  const joinedAt = new Date(authUser?.createdAt ?? "");
+
+  const memberSince = joinedAt 
+  ? joinedAt.toLocaleDateString("en-US", { year: "numeric", month: "short" }) 
+  : "";
+
+
+
+
+
+  const hasAddress =
+    fullName ||
+    email ||
+    state ||
+    city ||
+    streetAddress ||
+    landmark ||
+    postalCode;
 
   return (
     <div className="space-y-8">
@@ -57,10 +110,10 @@ export function AccountOverview() {
       {/* 🔹 Redesigned Quick Stats */}
       <div className="mt-5 grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-3">
         {[
-          { key: "status", label: "Status", Icon: Shield, color: "green", value: "Verified" },
-          { key: "member", label: "Member", Icon: Star, color: "yellow", value: "2023" },
-          { key: "orders", label: "Orders", Icon: Gift, color: "blue", value: "12" },
-          { key: "points", label: "Points", Icon: User, color: "purple", value: "540" },
+          { key: "status", label: "Status", Icon: Shield, color: "green", value: authUser?.verified === true ? 'verified' : 'unverified' },
+          { key: "member", label: "Member Since", Icon: Star, color: "yellow", value: memberSince },
+          { key: "orders", label: "Orders", Icon: Gift, color: "blue", value: orderCount },
+          { key: "tier", label: "Loyalty Tier", Icon: Star, color: "purple", value: "Basic" }
         ].map((it) => (
           <div
             key={it.key}
@@ -96,16 +149,20 @@ export function AccountOverview() {
               <p className="text-sm text-gray-500 mb-1">Email Address</p>
               <p className="text-gray-700 text-sm">{authUser?.email}</p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3 border-blue-200 text-blue-600 hover:bg-blue-50"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Details
-            </Button>
+            
+            <Link href="/account?section=management">
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-3 border-blue-200 text-blue-600 hover:bg-blue-50"
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Edit Details
+              </Button>
+            </Link>
           </div>
         </div>
+
 
         {/* Default Address */}
         <div className="rounded-2xl bg-white shadow-sm hover:shadow-md transition-all border border-gray-100">
@@ -113,27 +170,64 @@ export function AccountOverview() {
             <MapPin className="text-green-600" />
             <h3 className="font-semibold text-green-700 text-lg">Default Address</h3>
           </div>
+
           <div className="p-6">
-            <p className="font-semibold text-gray-900 mb-1">{authUser?.username}</p>
-            <p className="text-gray-700 text-sm">
-              Chukuku opposite lea primary school
+            <p className="font-semibold text-gray-900 mb-1">
+              {authUser?.username}
             </p>
-            <p className="text-gray-700 text-sm">
-              GWAGWALADA, Federal Capital Territory
-            </p>
-            <p className="text-green-600 font-medium text-sm mt-1">
-              +234 8128102408
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3 border-green-200 text-green-600 hover:bg-green-50"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Address
-            </Button>
+
+            {hasAddress ? (
+              <>
+                {streetAddress && (
+                  <p className="text-gray-700 text-sm">{streetAddress}</p>
+                )}
+
+                {(city || state) && (
+                  <p className="text-gray-700 text-sm">
+                    {city}{city && state ? ", " : ""}{state}
+                  </p>
+                )}
+
+                {postalCode && (
+                  <p className="text-gray-700 text-sm">
+                    Postal Code: {postalCode}
+                  </p>
+                )}
+
+                {authUser?.phone && (
+                  <p className="text-green-600 font-medium text-sm mt-1">
+                    {authUser.phone}
+                  </p>
+                )}
+
+                <Link href="/account?section=management">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 border-green-200 text-green-600 hover:bg-green-50"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Update Address
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <Link href="/account?section=management">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-3 border-green-200 text-green-600 hover:bg-green-50"
+                >
+                  Add Address
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
+
+
+
+
       </div>
 
       {/* Bottom Section */}

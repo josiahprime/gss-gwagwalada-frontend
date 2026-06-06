@@ -56,7 +56,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
   const { reviews, fetchReviews, loading, error } = useReviewStore();
   const authUser = useAuthStore((state) => state.authUser);
 
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(true);
 
   useEffect(() => {
     fetchReviews(productId).catch((err) => toast.error(err.message || "Failed to load reviews"));

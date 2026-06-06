@@ -9,8 +9,11 @@ import {
   updatePasswordApi,
   updatePhoneApi,
   updateAddressApi,
-  fetchAddressApi
+  fetchAddressApi,
+  deleteUserApi
 } from "./createAccountActions";
+import { useAuthStore } from "store/auth/useAuthStore";
+
 
 const useAccountStore = create<AccountState>((set) => ({
   // 🔹 Base fields
@@ -114,6 +117,39 @@ const useAccountStore = create<AccountState>((set) => ({
       });
     } catch (err) {
       console.error("[Zustand] fetchAddress failed:", err);
+    }
+  },
+
+   deleteUser: async (userId: string) => {
+    try {
+      const data = await deleteUserApi(userId);
+
+      const { logout } = useAuthStore.getState();
+      await logout("manual"); // optional reason parameter
+
+
+      // Optional: Clear user info from store after deletion
+      set({
+        name: "",
+        email: "",
+        phone: "",
+        userId: "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+        fullName: "",
+        state: "",
+        city: "",
+        address: "",
+        landmark: "",
+        postalCode: "",
+      });
+      
+
+      return data; // { message: "User soft-deleted successfully" }
+    } catch (err) {
+      console.error("Error deleting user from store:", err);
+      throw err;
     }
   },
 

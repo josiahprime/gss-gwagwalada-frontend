@@ -3,10 +3,13 @@ import { formatCurrency } from "utils/FormatCurrency";
 import {useCartStore} from "../../../store/cart/useCartStore";
 import { useAuthStore } from "store/auth/useAuthStore";
 import { ShoppingCart, Plus, Minus, Trash2, ShoppingBag, ArrowRight} from "lucide-react";
+import { useCheckoutStore } from "store/checkout/useCheckoutStore";
 import Link from "next/link";
+import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import CartSkeleton from "app/components/ui/CartSkeleton";
+import EmptyCart from "app/components/ui/EmptyCart";
 
 
 
@@ -20,6 +23,8 @@ const CartPage = () => {
   const authUser = useAuthStore((state)=>state.authUser)
   const removeFromCart = useCartStore((state) => state.removeFromCart);
   const clearCart = useCartStore((state) => state.clearCart);
+  const cartMessage = useCartStore((state)=>state.cartMessage);
+  const clearCartMessage = useCartStore((state)=>state.clearCartMessage)
   const incrementQuantity = useCartStore((state) => state.incrementQuantity);
   const decrementQuantity = useCartStore((state) => state.decrementQuantity);
 
@@ -27,19 +32,6 @@ const CartPage = () => {
 
   const [isLoading, setIsLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const fetchCart = async () => {
-  //     if (authUser) {
-  //       setIsLoading(true);
-  //       await getCart();
-  //       setIsLoading(false);
-  //     } else {
-
-  //       setIsLoading(false);
-  //     }
-  //   };
-  //   fetchCart();
-  // }, [authUser, getCart]);
 
   useEffect(() => {
       const fetchCart = async () => {
@@ -49,6 +41,22 @@ const CartPage = () => {
       };
       fetchCart();
     }, [authUser, getCart]);
+
+    useEffect(() => {
+      if (cartMessage) {
+        toast(cartMessage);     // Show notification
+        clearCartMessage();     // Clear message so it doesn't repeat
+      }
+    }, [cartMessage, clearCartMessage]);
+
+    useEffect(() => {
+      useCheckoutStore.getState().setCurrentStep(1); 
+      localStorage.removeItem("checkout-store"); 
+    }, []);
+
+
+    
+    
 
 
   useEffect(() => {
@@ -70,6 +78,11 @@ const CartPage = () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [authUser, getCart]);
+
+  const handleRemove = (id: string, productName: string) => {
+    removeFromCart(id);
+    toast.success(`${productName} removed from cart.`);
+  };
 
 
   if (isLoading) return <CartSkeleton />;
@@ -93,24 +106,7 @@ const CartPage = () => {
 
 
   if (cartItems.length === 0) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-6">
-          <div className="w-32 h-32 bg-gradient-to-r from-green-600 to-emerald-700 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
-            <ShoppingCart className="w-16 h-16 text-indigo-600" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">Your Cart is Empty</h1>
-          <p className="text-gray-600 mb-8 text-lg">Start shopping and add some amazing products to your cart!</p>
-          <Link
-            href="/products"
-            className="inline-flex items-center space-x-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white px-8 py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-          >
-            <ShoppingBag className="w-5 h-5" />
-            <span>Browse Products</span>
-          </Link>
-        </div>
-      </div>
-    );
+    return <EmptyCart/>
   }
 
   return (
@@ -154,7 +150,7 @@ const CartPage = () => {
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-b border-gray-200">
+                    <tr className="bg-gradient-to-r from-green-500/10 to-green-600/10 border-b border-gray-200">
                       <th className="text-left py-6 px-6 font-semibold text-gray-700">#</th>
                       <th className="text-left py-6 px-6 font-semibold text-gray-700">Product</th>
                       <th className="text-center py-6 px-6 font-semibold text-gray-700">Price</th>
@@ -201,6 +197,7 @@ const CartPage = () => {
                         <td className="py-6 px-6">
                           <div className="flex items-center justify-center space-x-3">
                             <button
+                              disabled={item.updating}
                               onClick={() => decrementQuantity(item.id)}
                               className="w-8 h-8 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
                             >
@@ -210,6 +207,7 @@ const CartPage = () => {
                               {item.quantity}
                             </span>
                             <button
+                              disabled={item.updating}
                               onClick={() => incrementQuantity(item.id)}
                               className="w-8 h-8 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
                             >
@@ -224,7 +222,7 @@ const CartPage = () => {
                         </td>
                         <td className="py-6 px-6 text-center">
                           <button
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => handleRemove(item.id, item.productName)}
                             className="w-10 h-10 bg-red-50 text-red-500 rounded-xl hover:bg-red-100 transition-all duration-300 flex items-center justify-center group"
                           >
                             <Trash2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -264,7 +262,7 @@ const CartPage = () => {
                         <p className="bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text text-transparent font-bold text-sm">{formatCurrency(item.priceInKobo)}</p>
                       </div>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => handleRemove(item.id, item.productName)}
                         className="w-8 h-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -273,6 +271,7 @@ const CartPage = () => {
                     <div className="flex items-center justify-between mt-4 ml-6">
                       <div className="flex items-center space-x-3">
                         <button
+                          disabled={item.updating}
                           onClick={() => decrementQuantity(item.id)}
                           className="w-8 h-8 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg flex items-center justify-center"
                         >
@@ -280,6 +279,7 @@ const CartPage = () => {
                         </button>
                         <span className="font-bold text-gray-800">{item.quantity}</span>
                         <button
+                          disabled={item.updating}
                           onClick={() => incrementQuantity(item.id)}
                           className="w-8 h-8 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg flex items-center justify-center"
                         >

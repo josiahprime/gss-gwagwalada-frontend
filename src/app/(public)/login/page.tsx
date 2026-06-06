@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "store/auth/useAuthStore";
 import LoginMobile from "app/components/Login/LoginMobile";
 import MobileCheckSkeleton from "app/components/ui/MobileCheckSkeleton";
+
 
 type GoogleCredentialResponse = {
   credential: string;
@@ -17,6 +20,7 @@ const Login = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const login = useAuthStore((state) => state.login);
+  const authUser = useAuthStore((state)=>state.authUser)
   const isLoggingIn = useAuthStore((state) => state.isLoggingIn);
   const [isMobile, setIsMobile] = useState<null | boolean>(null);
 
@@ -25,6 +29,14 @@ const Login = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const signupWithGoogle = useAuthStore((state)=>state.signupWithGoogle)
   const error = searchParams.get("error");
+
+  useEffect(() => {
+    if (authUser) {
+      // Redirect logged-in users away from login page
+      router.replace("/"); // or "/dashboard" if you have a dashboard
+    }
+  }, [authUser, router]);
+
 
    useEffect(() => {
       const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -97,8 +109,6 @@ const Login = () => {
       const result = await login({ email, password }); // <- capture result
       if (result) {                                   // <- only redirect if truthy
         router.push("/"); 
-      } else {
-        toast.error("Invalid email or password");    // <- show error if login failed
       }
     } catch (error) {
       const err = error as { data?: { message?: string } };
@@ -117,19 +127,25 @@ const Login = () => {
     ) : 
       (<div className="flex flex-col md:flex-row h-screen">
         {/* Left Side (hidden on mobile) */}
-        <div
-          className="hidden md:flex md:w-1/2 bg-cover bg-center"
-          style={{ backgroundImage: `url('https://res.cloudinary.com/djmnjen6v/image/upload/v1762093790/loginPageImg1_woqvmm.jpg')` }}
-        >
-          <div className="flex flex-col justify-center h-full w-full text-white p-12 bg-black/50">
+        <div className="hidden md:flex md:w-1/2 relative">
+          <Image
+            src="https://res.cloudinary.com/djmnjen6v/image/upload/v1762093790/loginPageImg1_woqvmm.jpg"
+            alt="Login background"
+            fill
+            priority
+            className="object-cover"
+          />
+
+          <div className="absolute inset-0 flex flex-col justify-center text-white p-12 bg-black/50">
             <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-              Turn Your Ideas into Reality
+              Fresh Produce Straight From Local Farms To Your Home.
             </h1>
             <p className="text-lg">
-              Start for free and get attractive offers from the community
+              Log in to shop quality farm produce you can trust.
             </p>
           </div>
         </div>
+
 
         {/* Right Side */}
         <div className="flex-1 flex items-center justify-center bg-gray-50 p-6 sm:p-10">
@@ -199,9 +215,9 @@ const Login = () => {
 
             {/* Divider */}
             <div className="flex items-center my-4">
-              <div className="border-t flex-grow"></div>
+              <div className="border-t grow"></div>
               <span className="px-4 text-gray-500">or</span>
-              <div className="border-t flex-grow"></div>
+              <div className="border-t grow"></div>
             </div>
 
             {/* Google Button */}

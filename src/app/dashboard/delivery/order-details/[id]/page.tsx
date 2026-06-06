@@ -328,9 +328,9 @@ const OrderDetailsPage: React.FC = () => {
                             {item.quantity}
                           </div>
                         </td>
-                        <td className="p-4 text-right">₦{item.priceInKobo.toLocaleString()}</td>
+                        <td className="p-4 text-right">₦{item.unitPriceInKobo.toLocaleString()}</td>
                         <td className="p-4 pr-6 text-right font-bold text-gray-900">
-                          ₦{(item.quantity * item.priceInKobo).toLocaleString()}
+                          ₦{(item.quantity * item.unitPriceInKobo).toLocaleString()}
                         </td>
                       </tr>
                     ))}

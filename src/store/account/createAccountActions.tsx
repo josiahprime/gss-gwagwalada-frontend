@@ -89,5 +89,16 @@ export const fetchAddressApi = async () => {
   }
 };
 
+export const deleteUserApi = async (userId: string) => {
+  try {
+    const res = await axiosInstance.delete(`/account/${userId}`);
+    return res.data; // { message: "User soft-deleted successfully" }
+  } catch (err) {
+    const error = err as AxiosError<{ message: string }>;
+    console.error("[API] deleteUserApi failed:", error.response?.data || error.message);
+    throw err;
+  }
+};
+
 
 

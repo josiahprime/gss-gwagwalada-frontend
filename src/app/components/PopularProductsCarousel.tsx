@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Product } from "store/product/productTypes";
 import { ProductCard } from "./ProductCard/ProductCard";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Props {
   products: Product[];
@@ -103,31 +104,31 @@ const ProductSlider = ({ products }: Props) => {
                 productName={product.productName}
                 description={product.description}
                 priceInKobo={product.priceInKobo}
-                image={product.images?.[0]?.url ?? ""}   // ✅ FIX: use first image
+                image={product.images?.[0]?.url ?? ""}
                 rating={product.rating}
                 unitType={product.unitType}
                 isFavorite={product.isFavorite || false}
+                stock={product.stock}
               />
-
             </div>
           ) : null
         )}
       </div>
 
-      {/* Buttons */}
+      {/* Previous Button */}
       <button
-        onClick={prevSlide}
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full z-10 hover:bg-gray-600"
-      >
-        ❮
-      </button>
+          onClick={prevSlide}
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/20 backdrop-blur-lg border border-white/30 shadow-lg hover:bg-black/40 transition-colors"
+        >
+          <ChevronLeft className="w-6 h-6 text-white" />
+        </button>
 
-      <button
-        onClick={nextSlide}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-700 text-white p-2 rounded-full z-10 hover:bg-gray-600"
-      >
-        ❯
-      </button>
+        <button
+          onClick={nextSlide}
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-black/20 backdrop-blur-lg border border-white/30 shadow-lg hover:bg-black/40 transition-colors"
+        >
+          <ChevronRight className="w-6 h-6 text-white" />
+        </button>
     </div>
   );
 };

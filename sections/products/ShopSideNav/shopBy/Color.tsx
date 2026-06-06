@@ -10,9 +10,11 @@ import {
   ChevronDown,
   ChevronUp,
   Grid,
+  Loader2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useProductStore } from 'store/product/useProductStore';
 
 const brands = [
   { _id: 0, title: 'All Products', slug: '', icon: <Grid size={18} /> },
@@ -27,23 +29,40 @@ const brands = [
 const ProductTagSidebar: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTag, setActiveTag] = useState('');
+  // const [activeTag, setActiveTag] = useState('');
   const [isOpen, setIsOpen] = useState(true);
 
-  // Load active tag from URL on mount
+  // 1. Track which tag was clicked locally
+  const [clickedTag, setClickedTag] = useState<string | null>(null);
+  
+  // 2. Get global loading state from your store
+  const isLoading = useProductStore((state) => state.isLoading);
+
+
+  const activeTag = searchParams.get('category') || '';
+
+  // 3. Reset the clicked tag when loading finishes
   useEffect(() => {
-    const categoryFromUrl = searchParams.get('category');
-    setActiveTag(categoryFromUrl || ''); // ✅ resets to '' when there's no category
-  }, [searchParams]);
+    if (!isLoading) {
+      setClickedTag(null);
+    }
+  }, [isLoading]);
+
+  // Load active tag from URL on mount
+  // useEffect(() => {
+  //   const categoryFromUrl = searchParams.get('category');
+  //   setActiveTag(categoryFromUrl || ''); // ✅ resets to '' when there's no category
+  // }, [searchParams]);
 
   const handleFilter = (category: string) => {
-    setActiveTag(category);
-
-    if (category) {
-      router.push(`/products?category=${category}`);
-    } else {
-      // ✅ go back to all products (no category in URL)
-      router.push('/products');
+    // Only set loading if we aren't already on this category
+    if (category !== activeTag) {
+      setClickedTag(category);
+      if (category) {
+        router.push(`/products?category=${category}`);
+      } else {
+        router.push('/products');
+      }
     }
   };
 
@@ -69,23 +88,31 @@ const ProductTagSidebar: React.FC = () => {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
           >
-            {brands.map((item) => (
-              <motion.li
-                key={item._id}
-                whileHover={{ scale: 1.03 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-                onClick={() => handleFilter(item.slug)}
-                className={`cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg duration-300
-                  ${
-                    activeTag === item.slug
-                      ? 'bg-primeColor text-gray-600 bg-gray-200'
-                      : 'hover:bg-gray-100 hover:text-primeColor text-gray-800'
-                  }`}
-              >
-                {item.icon}
-                <span className="text-lg">{item.title}</span>
-              </motion.li>
-            ))}
+            {brands.map((item) => {
+              // Add this logic check here:
+              const isItemLoading = isLoading && clickedTag === item.slug;
+              return (
+                <motion.li
+                  key={item._id}
+                  onClick={() => handleFilter(item.slug)}
+                  className={`cursor-pointer flex items-center justify-between px-3 py-2 rounded-lg duration-300
+                    ${activeTag === item.slug
+                      ? 'bg-gray-200 text-primeColor font-medium'
+                      : 'hover:bg-gray-100 text-gray-800'
+                    }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {item.icon}
+                    <span className="text-lg">{item.title}</span>
+                  </div>
+
+                  {/* 2. ADD THIS: This is the actual visual loader */}
+                  {isItemLoading && (
+                    <Loader2 size={16} className="animate-spin text-primeColor" />
+                  )}
+                </motion.li>
+              );
+            })}
           </motion.ul>
         )}
       </AnimatePresence>

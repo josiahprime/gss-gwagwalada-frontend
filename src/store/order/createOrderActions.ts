@@ -32,7 +32,8 @@ export const createOrderActions: StateCreator<
       
 
       set({ preview: res.data, loading: false });
-      toast.success("order calculated successfully");
+      // toast.success("order calculated successfully");
+      // console.log('triggered preview order api')
       return res.data;
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;

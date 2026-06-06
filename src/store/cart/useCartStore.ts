@@ -8,6 +8,10 @@ export const useCartStore = create<CartState & CartActions>()(
     (set, get) => ({
       items: [],            // logged-in user cart
       guestItems: [],       // guest cart
+      isMerging: false, 
+      isLoading: false,
+      cartMessage: null,
+      hasShownMessage: false,
       ...createCartActions(set, get), // all actions
     }),
     {

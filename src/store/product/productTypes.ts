@@ -33,27 +33,26 @@ export interface Product {
   minOrderQuantity: number;
   createdAt: string;
   updatedAt: string;
-  favorites: string[];
+  // favorites: string[];
   isFavorite?: boolean;
   discountId?: string;
   discount?: Discount;
   displayLabel?: string;
+  soldCount?: number; 
 }
 
-// export interface DailyDeal {
-//   id: number;
-//   productId: string;
-//   dealDate: string;
-//   expiresAt: string;
-//   createdAt: string;
-//   product: Product;
-// }
+export interface Favorites {
+  productIds: string[];
+}
+
+
 export interface DailyDeal{
   id: string;
   productName: string;
   description: string;
   priceInKobo: number;
   unitType: string;
+  isFavorite?: boolean;
   discount: {
     value: number;
     type: 'PERCENTAGE' | 'FIXED';
@@ -72,6 +71,7 @@ export interface HolidayDeals{
   description: string;
   priceInKobo: number;
   unitType: string;
+  isFavorite?: boolean;
   discount: {
     value: number;
     type: 'PERCENTAGE' | 'FIXED';
@@ -141,14 +141,49 @@ export interface SingleProductResponse {
   product?: Product;
 }
 
+
+//remember whoever wants to work on this when im gone when ive crossed the bar
+//i you want an item to show favorites and you dont add it to this product list
+//youll debug for a year and it wont work...just saying hehe
+export type ProductListKeys =
+  | "products"
+  | "popularProducts"
+  | "favoriteProducts"
+  | "dailyDeals"
+  | "HolidayDeals";
+
+
+
+  // export interface FetchProductsOptions {
+  //     category?: string;
+  //     minPrice?: number;
+  //     maxPrice?: number;
+  //   }
+
+  //   export type FetchProductsFn = (
+  //     filters?: FetchProductsOptions,
+  //     cursor?: string,
+  //     isFetchMore?: boolean,
+  //     limit?: number
+  //   ) => Promise<void>;
+
+
+    
+
+
+
+
+
+
 /** Store types */
 export interface ProductSlice {
-  products: Product[] | null;
+  products: Product[]
   singleProduct?: Product | null; // ✅ add this
-  dailyDeals: DailyDeal[];
-  HolidayDeals: HolidayDeals[];
+  dailyDeals: Product[];
+  HolidayDeals: Product[];
   popularProducts: Product[];
-  favorites: Product[];
+  favoriteProducts: Product[];
+  favoriteIds: string[];  
   isCreatingProduct: boolean;
   isFetchingProducts: boolean;
   isLoading: boolean;
@@ -156,31 +191,77 @@ export interface ProductSlice {
   error: string | null;
   success: boolean;
   data: unknown | null;
+  nextCursor: string | null;
+  hasMore: boolean;
+  isFetchingMore: boolean,
+
+  // 🔍 search
+  // searchResults: Product[];
+  // searchLoading: boolean;
+  // searchQuery: string | null;
+  // 🔎 unified query state
+  query: ProductQuery;
+
+  lastFetchedQuery: ProductQuery | null;
+
+  
+
+
 }
+
+export interface ProductQuery {
+  category?: string;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: "price_asc" | "price_desc" | "newest";
+}
+
+
 
 /** Store actions */
 export interface ProductActions {
+  setFavoritesFor: (
+    listKey: ProductListKeys,
+    favoriteIds: string[]
+  ) => void;
+
+
   createProduct: (data: CreateProductPayload) => Promise<void>;
-  fetchProducts: (
-    filters?: Record<string, string | number | boolean>,
-    userId?: string
-  ) => Promise<void>;
+  // fetchProducts: FetchProductsFn;
 
   /** ✅ New action for single product */
   // fetchProductById: (id: string) => Promise<void>;
   fetchProductById: (id: string, userId?: string) => Promise<void>;
 
   fetchDailyDeals: () => Promise<void>;
+  fetchFavoriteIds: (userId: string) => Promise<string[]>;
+
+  // setProductsWithFavorites(favoriteIds: string[])=>Promise<void>;
   fetchHolidayDeals: () => Promise<void>;
   fetchPopularProducts: () => Promise<void>;
   deleteProduct: (productId: string) => Promise<boolean>;
-  updateProduct: (payload: FormData) => Promise<boolean>;
+  updateProduct: (payload: FormData) => Promise<{ success: boolean; message?: string }>;
   setProduct?: (product: Product) => void;
   fetchFavorites: (userId: string) => Promise<void>;
+  trackView: (productId: string) => Promise<void>;
   toggleFavorite: (
     userId: string,
     productId: string
   ) => Promise<"added" | "removed">;
+
+
+  fetchProducts: (options?: { loadMore?: boolean, caller?:string }) => Promise<void>;
+
+  setCategory: (category: string) => void;
+  setFilters: (filters: Partial<ProductQuery>) => void;
+
+
+  /** 🔍 Search */
+  setSearchQuery: (query: string) => void; // pass ""
+
+
+  
 }
 
 /** Combined state */

@@ -3,8 +3,10 @@ export interface Review {
   rating: number;
   text: string;
   createdAt: string;
-  user: { name: string, profilePic: string };
+  user: {id:string, name: string, profilePic: string };
 }
+
+
 
 export interface ReviewState {
   reviews: Review[];

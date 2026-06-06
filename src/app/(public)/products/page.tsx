@@ -10,23 +10,41 @@ import MobileCategoryNav from "../../../../sections/products/ShopSideNav/ScrollB
 import ProductCardSkeleton from "app/components/ui/ProductCardSkeleton";
 
 const Product = () => {
-  const products = useProductStore((state: ProductState) => state.products);
   const isLoading = useProductStore((state: ProductState) => state.isLoading);
   // const isLoading = true
-  const fetchProducts = useProductStore((state: ProductState) => state.fetchProducts);
+  const setProductsWithFavorites = useProductStore(state => state.setFavoritesFor);
+
+  const favoriteIds = useProductStore((state) => state.favoriteIds);
+  const fetchFavoriteIds = useProductStore((state)=>state.fetchFavoriteIds)
   const error = useProductStore((state: ProductState) => state.error);
   const userId = useAuthStore((state) => state.authUser?.id);
 
+  
+
   const searchParams = useSearchParams();
-  const category = searchParams.get("category");
+  const category = searchParams.get("category") || "";
 
   useEffect(() => {
-    if (category) {
-      fetchProducts({ category }, userId);
-    } else {
-      fetchProducts({}, userId);
-    }
-  }, [fetchProducts, userId, category]);
+    useProductStore.getState().setCategory(category);
+  }, [category]);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userId) {
+        const ids = await fetchFavoriteIds(userId);
+        setProductsWithFavorites("products", ids || []);
+      }
+    };
+
+    fetchData();
+  }, [userId, fetchFavoriteIds, setProductsWithFavorites]);
+
+
+
+  console.log('favorites id from products page', favoriteIds)
+
+
 
   if (isLoading) {
     return (
@@ -87,7 +105,7 @@ const Product = () => {
       <MobileCategoryNav />
 
       <div className="mx-4 my-4 flex-1 flex justify-center relative">
-        <PaginatedProducts products={products} />
+        <PaginatedProducts/>
       </div>
     </div>
   );

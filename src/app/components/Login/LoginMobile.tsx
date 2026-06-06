@@ -6,6 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import { useAuthStore } from "store/auth/useAuthStore";
+import { useAuthGuard } from "app/hooks/useAuthGuard";
 
 type GoogleCredentialResponse = {
   credential: string;
@@ -27,6 +28,15 @@ const LoginMobile = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const signupWithGoogle = useAuthStore((state)=>state.signupWithGoogle)
   const error = searchParams.get("error");
+  const authUser = useAuthStore((state)=>state.authUser)
+
+  useEffect(() => {
+    if (authUser) {
+      // Redirect logged-in users away from login page
+      router.replace("/"); // or "/dashboard" if you have a dashboard
+    }
+  }, [authUser, router]);
+
 
   const handleGoogleResponse = useCallback(
     async (response: GoogleCredentialResponse) => {
@@ -87,8 +97,6 @@ const LoginMobile = () => {
       const result = await login({ email, password }); // <- capture result
       if (result) {                                   // <- only redirect if truthy
         router.push("/"); 
-      } else {
-        toast.error("Invalid email or password");    // <- show error if login failed
       }
     } catch (error) {
       const err = error as { data?: { message?: string } };

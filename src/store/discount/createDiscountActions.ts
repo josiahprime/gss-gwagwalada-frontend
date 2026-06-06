@@ -19,6 +19,7 @@ export const createDiscountActions = (
     set({ loading: true, error: null });
     try {
       const res = await axiosInstance.get("/discounts");
+      console.log(res)
       set({ discounts: res.data.discounts || [], loading: false });
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;

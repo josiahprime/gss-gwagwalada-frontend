@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Button from "app/components/Button/Button";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatCurrency } from "utils/FormatCurrency";
 import { ShoppingCart, Heart, Share2, Star, Truck, Shield, ArrowLeft, ArrowRight } from "lucide-react";
@@ -8,6 +9,7 @@ import { useProductStore } from "store/product/useProductStore";
 import { useAuthStore } from "store/auth/useAuthStore";
 import Badge from "app/components/Badge/Badge";
 import type { Product } from "store/product/productTypes";
+import Image from "next/image";
 
 
 interface ProductInfoProps {
@@ -21,15 +23,25 @@ interface ProductInfoProps {
 
 
   const [selectedImage, setSelectedImage] = useState<string>("");
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
 
   
 
   const userId = useAuthStore((state)=>state.authUser?.id)
   const addToCart = useCartStore((state) => state.addToCart);
 
+  const router = useRouter();
 
-  const favorites = useProductStore((state)=> state.favorites)
+
+  const favoriteIds = useProductStore((state) => state.favoriteIds);
+  // const fetchFavoriteIds = useProductStore((state) => state.fetchFavoriteIds);
+  // const setFavoritesFor = useProductStore((state) => state.setFavoritesFor);
   const toggleFavorites = useProductStore((state)=>state.toggleFavorite)
+  const fetchCart = useCartStore((state)=>state.getCart)
+
+  const isOutOfStock = productInfo.stock === 0; // or whatever field represents stock
+
 
   useEffect(() => {
     if (productInfo.images[0]?.url) {
@@ -49,11 +61,11 @@ interface ProductInfoProps {
   }, [index, productInfo.images]);
 
 
-   useEffect(() => {
-    // ✅ Check if the product is already in favorites
-    const exists = favorites.some((fav) => fav.id === productInfo.id);
-    setIsFavorite(exists);
-  }, [favorites, productInfo.id]);
+  useEffect(() => {
+    // Check if this product is in the user's favorites
+    setIsFavorite(favoriteIds.includes(productInfo.id));
+  }, [favoriteIds, productInfo.id]);
+
 
   
 
@@ -72,6 +84,30 @@ interface ProductInfoProps {
     toast.success(`${productInfo.productName} added to cart!`);
   };
 
+  const handleBuyNow = async () => {
+    if (isOutOfStock) return;
+
+    try {
+      await addToCart({
+        id: productInfo.id,
+        productId: productInfo.id,
+        productName: productInfo.productName,
+        image: productInfo.images[0]?.url || "",
+        priceInKobo: productInfo.priceInKobo,
+        quantity,
+        unitType: productInfo.unitType,
+      });
+      await fetchCart()
+
+      router.push("/cart/checkout");
+    } catch {
+      toast.error("Failed to add item to cart");
+    }
+  };
+
+
+
+
 
 
   const handleWishlist = async () => {
@@ -79,6 +115,8 @@ interface ProductInfoProps {
       toast.error("You must be logged in to add to wishlist");
       return;
     }
+
+    setWishlistLoading(true); // start loading
 
     try {
       await toggleFavorites(userId, productInfo.id);
@@ -91,8 +129,42 @@ interface ProductInfoProps {
     } catch (err) {
       console.error("Error toggling wishlist:", err);
       toast.error("Something went wrong while updating your wishlist.");
+    } finally {
+      setWishlistLoading(false); // stop loading
     }
   };
+
+  const handleShare = async () => {
+    const productUrl = window.location.href; // current page URL
+
+    if (navigator.share) {
+      // Use native share dialog if available
+      try {
+        await navigator.share({
+          title: productInfo.productName,
+          text: `Check out this product: ${productInfo.productName}`,
+          url: productUrl,
+        });
+        toast.success("Product shared successfully!");
+      } catch (err) {
+        console.error("Share canceled or failed", err);
+        toast.error("Could not share the product.");
+      }
+    } else if (navigator.clipboard) {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(productUrl);
+        toast.success("Product link copied to clipboard!");
+      } catch (err) {
+        console.error("Copy failed", err);
+        toast.error("Could not copy the link.");
+      }
+    } else {
+      toast.error("Sharing is not supported in this browser.");
+    }
+  };
+
+
 
 
 
@@ -120,11 +192,14 @@ interface ProductInfoProps {
           {/* Product Gallery */}
           <div className="space-y-4">
             <div className="relative group rounded-2xl shadow-neumorphic overflow-hidden">
-              {selectedImage ? (
-                <img
-                  src={selectedImage}
+              {selectedImage ? (             
+                <Image
+                  src={selectedImage || "/placeholder.png"} // fallback if no image
                   alt={productInfo.productName}
+                  width={700} // set width
+                  height={350} // set height
                   className="w-full h-[350px] object-cover transition-transform duration-700 group-hover:scale-105"
+                  priority={true} // optional: if above-the-fold
                 />
               ) : null}
 
@@ -168,7 +243,14 @@ interface ProductInfoProps {
                     selectedImage === img.url ? "ring-2 ring-green-500 shadow-lg" : "ring-1 ring-gray-200 hover:ring-gray-300"
                   }`}
                 >
-                  <img src={img.url} alt="Thumbnail" className="w-12 h-12 object-cover rounded-lg" />
+                  <div className="relative w-12 h-12">
+                    <Image
+                      src={img.url || "/placeholder.png"}
+                      alt="Thumbnail"
+                      fill
+                      className="object-cover rounded-lg"
+                    />
+                  </div>
                 </button>
               ))}
             </div>
@@ -254,14 +336,22 @@ interface ProductInfoProps {
                 <span className="text-xs font-semibold text-gray-700">Category:</span>
                 <p className="text-gray-600 text-xs">{productInfo.category}</p>
               </div>
-              {/* <div>
-                <span className="text-xs font-semibold text-gray-700">Weight:</span>
-                <p className="text-gray-600 text-xs">{productInfo.weight}</p>
-              </div> */}
+
               <div>
                 <span className="text-xs font-semibold text-gray-700">Stock:</span>
-                <p className="text-green-600 font-medium text-xs">In Stock</p>
+                <p
+                  className={`font-medium text-xs ${
+                    productInfo.stock === 0
+                      ? "text-red-600"         // Out of stock
+                      : productInfo.stock <= 10
+                      ? "text-yellow-600"      // Low stock warning
+                      : "text-green-600"       // Plenty in stock
+                  }`}
+                >
+                  {productInfo.stock === 0 ? "Out of Stock" : productInfo.stock}
+                </p>
               </div>
+
             </div>
 
             {/* Quantity */}
@@ -291,32 +381,51 @@ interface ProductInfoProps {
               <div className="flex flex-wrap gap-2">
                 <Button
                   onClick={handleAddToCart}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-2 rounded-xl shadow-md hover:shadow-lg transition-all text-xs"
+                  disabled={isOutOfStock}
+                  className={`flex-1 py-2 rounded-xl transition-all ${
+                    isOutOfStock
+                      ? "bg-red-500 cursor-not-allowed"
+                      : "bg-green-500 hover:bg-green-600"
+                  }`}
                 >
-                  <ShoppingCart className="w-3 h-3 mr-1" />
-                  Add to Cart
+                  {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </Button>
+
 
                 <Button
                   onClick={handleWishlist}
-                  variant="outline" // always a valid variant
+                  disabled={wishlistLoading}
+                  variant="outline"
                   className={`flex-1 py-2 rounded-xl border-2 transition-all duration-300 text-xs flex items-center justify-center ${
-                    isFavorite
-                      ? "bg-red-50 border-red-200 text-red-600" // "filled" style
-                      : "hover:bg-gray-50 border-gray-300"
-                  }`}
+                    isFavorite ? "bg-red-50 border-red-200 text-red-600" : "hover:bg-gray-50 border-gray-300"
+                  } ${wishlistLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                   <Heart className={`w-3 h-3 mr-1 ${isFavorite ? "fill-current text-red-500" : ""}`} />
-                  {isFavorite ? "In Wishlist" : "Add to Wishlist"}
+                  {wishlistLoading ? "Updating..." : isFavorite ? "In Wishlist" : "Add to Wishlist"}
                 </Button>
 
-                <Button variant="outline" className="px-2 py-2 rounded-xl border-2 border-gray-300 hover:bg-gray-50 transition-all">
+
+                <Button
+                  variant="outline"
+                  className="px-2 py-2 rounded-xl border-2 border-gray-300 hover:bg-gray-50 transition-all"
+                  onClick={handleShare}
+                >
                   <Share2 className="w-3 h-3" />
                 </Button>
+
               </div>
-              <Button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-2 rounded-xl shadow-md hover:shadow-lg transition-all text-xs">
-                Buy Now
+              <Button
+                className={`w-full py-2 rounded-xl shadow-md transition-all text-xs text-white 
+                  ${isOutOfStock 
+                    ? "bg-gray-400 cursor-not-allowed" 
+                    : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg"
+                  }`}
+                onClick={handleBuyNow}
+                disabled={isOutOfStock} // prevents click
+              >
+                {isOutOfStock ? "Out of Stock" : "Buy Now"}
               </Button>
+
               <div className="flex items-center gap-4 pt-2 border-t border-gray-200 text-xs text-gray-600">
                 <div className="flex items-center gap-1">
                   <Truck className="w-3 h-3 text-green-600" /> Free Shipping
@@ -334,156 +443,3 @@ interface ProductInfoProps {
 };
 
 export default ProductInfo;
-
-
-
-
-// import React, { useState, useEffect } from "react";
-// import Button from "app/components/Button/Button";
-// import toast from "react-hot-toast";
-// import { formatCurrency } from "utils/FormatCurrency";
-// import { useAuthStore } from "store/auth/useAuthStore";
-// import {
-//   ShoppingCart,
-//   Heart,
-//   Share2,
-//   Star,
-// } from "lucide-react";
-// import { useCartStore } from "store/cart/useCartStore";
-// import { useProductStore } from "store/product/useProductStore";
-// import Badge from "app/components/Badge/Badge";
-
-// const ProductInfo = ({ productInfo }) => {
-//   const [selectedImage, setSelectedImage] = useState(productInfo.images[0].url);
-//   const userId = useAuthStore((state)=>state.authUser?.id)
-//   const addToCart = useCartStore((state) => state.addToCart);
-
-
-//   const favorites = useProductStore((state)=> state.favorites)
-//   const toggleFavorites = useProductStore((state)=>state.toggleFavorite)
-
-//   const [index, setIndex] = useState(0);
-//   const [quantity, setQuantity] = useState(1);
-//   const [isFavorite, setIsFavorite] = useState(false);
-
-//   // ✅ Auto-rotate images
-//   useEffect(() => {
-//     const interval = setInterval(() => {
-//       setIndex((prevIndex) => (prevIndex + 1) % productInfo.images.length);
-//     }, 4000);
-//     return () => clearInterval(interval);
-//   }, [productInfo.images.length]);
-
-//   useEffect(() => {
-//     setSelectedImage(productInfo.images[index]);
-//   }, [index, productInfo.images]);
-
-//   // ✅ Detect if product is already in favorites
-//   useEffect(() => {
-//     const exists = favorites.some((fav) => fav.id === productInfo.id);
-//     setIsFavorite(exists);
-//   }, [favorites, productInfo.id]);
-
-//   // ✅ This now triggers your store’s toggleFavorites
-//   const handleWishlist = async () => {
-//     try {
-//       await toggleFavorites(userId, productInfo.id);
-//       setIsFavorite(!isFavorite);
-//       toast.success(
-//         !isFavorite
-//           ? `${productInfo.productName} added to your wishlist ❤️`
-//           : `${productInfo.productName} removed from wishlist 💔`
-//       );
-//     } catch (err) {
-//       console.error("Error toggling wishlist:", err);
-//       toast.error("Something went wrong while updating your wishlist.");
-//     }
-//   };
-
-//   const handleAddToCart = () => {
-//     const product = {
-//       id: productInfo.id,
-//       productName: productInfo.productName,
-//       image: productInfo.images?.[0]?.url,
-//       priceInKobo: productInfo.priceInKobo,
-//       quantity,
-//       unitType: productInfo.unitType,
-//     };
-
-//     addToCart(product);
-//     toast.success(`${productInfo.productName} added to cart!`);
-//   };
-
-//   const nextImage = () => setIndex((index + 1) % productInfo.images.length);
-//   const prevImage = () =>
-//     setIndex(index === 0 ? productInfo.images.length - 1 : index - 1);
-
-//   const renderStars = (rating) => (
-//     <div className="flex gap-1">
-//       {[...Array(5)].map((_, i) => (
-//         <Star
-//           key={i}
-//           className={`w-3 h-3 ${
-//             i < Math.floor(rating)
-//               ? "fill-yellow-400 text-yellow-400"
-//               : "text-gray-300"
-//           }`}
-//         />
-//       ))}
-//     </div>
-//   );
-
-//   return (
-//     <div className="w-full">
-//       <div className="max-w-screen-xl mx-auto rounded-2xl bg-white/80 backdrop-blur-md border border-gray-200/30 shadow-xl lg:h-[600px] flex flex-col">
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 p-6 flex-1">
-//           {/* ... Gallery code unchanged ... */}
-
-//           {/* Product Details */}
-//           <div className="flex flex-col space-y-2.5">
-//             <h1 className="text-xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-//               {productInfo.productName}
-//             </h1>
-
-//             {/* Wishlist + Add to Cart */}
-//             <div className="flex flex-wrap gap-2 mt-2">
-//               <Button
-//                 onClick={handleAddToCart}
-//                 className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-2 rounded-xl shadow-md hover:shadow-lg transition-all text-xs"
-//               >
-//                 <ShoppingCart className="w-3 h-3 mr-1" />
-//                 Add to Cart
-//               </Button>
-
-//               <Button
-//                 onClick={handleWishlist}
-//                 variant={isFavorite ? "filled" : "outline"}
-//                 className={`flex-1 py-2 rounded-xl border-2 transition-all duration-300 text-xs flex items-center justify-center ${
-//                   isFavorite
-//                     ? "bg-red-50 border-red-200 text-red-600"
-//                     : "hover:bg-gray-50 border-gray-300"
-//                 }`}
-//               >
-//                 <Heart
-//                   className={`w-3 h-3 mr-1 ${
-//                     isFavorite ? "fill-current text-red-500" : ""
-//                   }`}
-//                 />
-//                 {isFavorite ? "In Wishlist" : "Add to Wishlist"}
-//               </Button>
-//               <Button
-//                 variant="outline"
-//                 className="px-2 py-2 rounded-xl border-2 border-gray-300 hover:bg-gray-50 transition-all"
-//               >
-//                 <Share2 className="w-3 h-3" />
-//               </Button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ProductInfo;
-

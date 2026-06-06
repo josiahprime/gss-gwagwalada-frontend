@@ -2,10 +2,12 @@
 "use client";
 
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { axiosInstance } from "lib/axios";
+import { useCartStore } from "store/cart/useCartStore";
+import toast from "react-hot-toast";
 
 export default function PaymentVerification() {
   const searchParams = useSearchParams();
@@ -14,10 +16,15 @@ export default function PaymentVerification() {
 
   const [status, setStatus] = useState("pending");
   const [error, setError] = useState<string | null>(null);
+  const clearCart = useCartStore((state) => state.clearCart);
+
+  const hasPolled = useRef(false);
 
 
   useEffect(() => {
-    if (!reference) return;
+    if (!reference || hasPolled.current) return;
+
+    hasPolled.current = true; // prevent re-running
 
     const pollStatus = async () => {
       try {
@@ -26,17 +33,18 @@ export default function PaymentVerification() {
 
         setStatus(orderStatus);
 
-        if (orderStatus === "paid" || orderStatus === "failed") {
-          // Delay slightly for better UX
+        if (orderStatus === "paid") {
+          clearCart();
+          toast.success("Payment Successful!");
+
           setTimeout(() => {
-            router.push(
-              orderStatus === "paid"
-                ? "/cart/checkout/payment-verification/success"
-                : "/cart/checkout/payment-verification/failure"
-            );
+            router.push("/cart/checkout/payment-verification/success");
+          }, 1000);
+        } else if (orderStatus === "failed") {
+          setTimeout(() => {
+            router.push("/cart/checkout/payment-verification/failure");
           }, 1000);
         } else {
-          // Still pending, check again in 3s
           setTimeout(pollStatus, 3000);
         }
       } catch (err) {
@@ -46,7 +54,8 @@ export default function PaymentVerification() {
     };
 
     pollStatus();
-  }, [reference, router]);
+  }, [reference, router, clearCart]);
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200">

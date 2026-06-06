@@ -112,6 +112,7 @@ const ShippingForm = ({ formData, handleChange, onNext, deliveryType, setDeliver
 
       try {
         await previewOrder(cartItems, { state, city }, deliveryType);
+        toast.success("Order calculated successfully");
         setCalculationDone(true); // ✅ unlock payment step
         onNext(); // proceed to payment step
       } catch (error) {

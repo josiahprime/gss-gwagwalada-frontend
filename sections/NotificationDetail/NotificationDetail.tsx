@@ -39,8 +39,9 @@ const NotificationDetail = ({ notificationId }: NotificationDetailProps) => {
             </div>
             <h1 className="text-xl font-bold mb-2">Message Not Found</h1>
             <p className="text-gray-600 mb-6">
-              The message you're looking for doesn't exist.
+              The message you&apos;re looking for doesn&apos;t exist.
             </p>
+
             <Link href="/account">
               <button className="inline-flex items-center justify-center gap-2 h-10 px-4 py-2 text-sm font-medium rounded-md bg-emerald-600 text-white hover:bg-emerald-700 w-full">
                 <ArrowLeft className="w-4 h-4" />

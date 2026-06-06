@@ -4,6 +4,7 @@ import { useOrderStore } from "store/order/useOrderStore";
 import OrderTable from "./OrderTable";
 import type { Order } from "store/order/orderTypes";
 import { useRouter } from "next/navigation";
+import { useThemeStore } from "store/theme/themeStore";
 
 const DeliveryPage = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -17,6 +18,7 @@ const DeliveryPage = () => {
   const error = useOrderStore((state) => state.error);
   const loading = useOrderStore((state) => state.loading);
   const fetchOrders = useOrderStore((state) => state.fetchOrders);
+  const theme = useThemeStore((s) => s.theme);
   const router = useRouter();
 
   useEffect(() => {
@@ -46,10 +48,13 @@ const DeliveryPage = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div
+      className={`shadow-md p-4 m-4 rounded-lg transition-colors duration-500
+        ${theme === "dark" ? "bg-gray-800 text-gray-200" : "bg-white text-gray-500"}`}
+    >
       {/* Orders Overview */}
       <div
-        className={`bg-white rounded-lg shadow ${
+        className={`${
           selectedOrder ? "lg:col-span-2" : "lg:col-span-3"
         }`}
       >

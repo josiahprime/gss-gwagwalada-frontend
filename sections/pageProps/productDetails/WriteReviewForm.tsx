@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Star } from "lucide-react";
+import { useState, useEffect } from "react";
+import { FaStar, FaRegStar } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useReviewStore } from "store/review/useReviewStore";
 import { useAuthStore } from "store/auth/useAuthStore";
@@ -12,17 +12,37 @@ interface WriteReviewFormProps {
 
 export default function WriteReviewForm({ productId }: WriteReviewFormProps) {
   const { addReview, loading } = useReviewStore();
-  const userId = useAuthStore((state)=>state.authUser?.id)
+  const reviews = useReviewStore((state)=>state.reviews)
+  const fetchReviews = useReviewStore((state)=>state.fetchReviews)
+  const userId = useAuthStore((state) => state.authUser?.id);
 
-  const [formName, setFormName] = useState("");
   const [formRating, setFormRating] = useState(0);
   const [formText, setFormText] = useState("");
 
+  useEffect(() => {
+    if (!productId) return;
+    fetchReviews(productId);
+  }, [productId]);
+
+
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const existingReview = reviews.find(r => r.user.id === userId);
+    if (existingReview) {
+      console.log('review found')
+      setFormRating(existingReview.rating);
+      setFormText(existingReview.text);
+    }else{console.log('no reviews found')}
+  }, [userId, reviews]);
+
   const handleSubmit = async () => {
-    if (!formName.trim() || !formText.trim() || formRating <= 0) {
-      toast.error("Please fill all fields and select a rating");
+    if (formRating <= 0) {
+      toast.error("Please select a rating");
       return;
     }
+
 
     if (!userId) {
       toast.error("You must be logged in to submit a review");
@@ -30,7 +50,6 @@ export default function WriteReviewForm({ productId }: WriteReviewFormProps) {
     }
 
     const reviewData = {
-      name: formName.trim(),
       userId,
       rating: formRating,
       text: formText.trim(),
@@ -38,6 +57,7 @@ export default function WriteReviewForm({ productId }: WriteReviewFormProps) {
     };
 
     const promise = addReview(reviewData);
+
     toast.promise(promise, {
       loading: "Submitting your review...",
       success: "Review submitted successfully! 🎉",
@@ -46,9 +66,11 @@ export default function WriteReviewForm({ productId }: WriteReviewFormProps) {
 
     await promise;
 
-    setFormName("");
     setFormText("");
     setFormRating(0);
+
+    // Refresh reviews so the UI updates
+    fetchReviews(productId);
   };
 
   return (
@@ -56,16 +78,6 @@ export default function WriteReviewForm({ productId }: WriteReviewFormProps) {
       <h3 className="text-lg font-semibold mb-4">Write a review</h3>
 
       <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
-          <label className="block text-sm text-black/60 mb-2">Your name</label>
-          <input
-            value={formName}
-            onChange={(e) => setFormName(e.target.value)}
-            className="w-full rounded-md border border-gray-200 px-4 py-3"
-            placeholder="John Doe"
-          />
-        </div>
-
         <div>
           <label className="block text-sm text-black/60 mb-2">Your rating</label>
           <div className="flex items-center gap-1">
@@ -74,11 +86,12 @@ export default function WriteReviewForm({ productId }: WriteReviewFormProps) {
                 key={n}
                 type="button"
                 onClick={() => setFormRating(n)}
-                className={`p-1 rounded ${formRating >= n ? "bg-[#FFC633]/20" : "hover:bg-gray-100"}`}
               >
-                <Star
-                  className={`w-6 h-6 ${formRating >= n ? "text-[#FFC633]" : "text-gray-300"}`}
-                />
+                {formRating >= n ? (
+                  <FaStar className="w-6 h-6 text-yellow-400" />
+                ) : (
+                  <FaRegStar className="w-6 h-6 text-gray-300" />
+                )}
               </button>
             ))}
           </div>
@@ -97,7 +110,7 @@ export default function WriteReviewForm({ productId }: WriteReviewFormProps) {
 
       <div className="flex items-center justify-end mt-4">
         <button
-          disabled={loading}
+          disabled={loading || formRating === 0}
           onClick={handleSubmit}
           className={`px-6 py-2 rounded-full text-white transition ${
             loading ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-gray-900"

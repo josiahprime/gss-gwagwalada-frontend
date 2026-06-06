@@ -11,20 +11,26 @@ export interface CartItem {
   unitType: string;
   discountId?: string | null;
   product?: Product;
+  updating?: boolean; 
 }
 
 export interface CartState {
   items: CartItem[];       // logged-in user cart
   guestItems: CartItem[];  // guest-only cart
+  isMerging: boolean;
+  isLoading: boolean;
+  cartMessage?: string | null;
+  hasShownMessage?:boolean;
 }
 
 
 export interface CartActions {
-  addToCart: (item: CartItem) => void;
+  addToCart: (item: CartItem) => Promise<void>;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
   incrementQuantity: (id: string) => void;
   decrementQuantity: (id: string) => void;
   mergeCart: () => Promise<void>; 
   getCart: () => Promise<void>
+  clearCartMessage: () => void;
 }

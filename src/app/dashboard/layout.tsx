@@ -1,23 +1,13 @@
 // app/layout.tsx or app/layout.tsx (depending on your structure)
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import { AuthWrapper } from "../components/AuthProvider/AuthProvider";
 import Sidebar from './components/sidebar/Sidebar';
 import Navbar from './components/navbar/Navbar';
 import DashboardGuard from "./components/DashboardGuard/DashboardGuard";
+import ThemeShell from "./components/theme/ThemeShell";
 import "../globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,21 +18,23 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>
-        <Toaster position="top-right" reverseOrder={false} />
-        <AuthWrapper>
-          <DashboardGuard requiredRoles={["admin"]}>
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
+      <AuthWrapper>
+        <DashboardGuard requiredRoles={["admin"]}>
+          <ThemeShell>
             <Sidebar />
             <div className="flex-1 w-full min-h-screen overflow-y-auto">
               <Navbar />
-              <div className="p-6 bg-gray-50 min-h-screen ml-40">
-                {children}
-              </div>
+              <div className="ml-40 pt-[50px] min-h-screen transition-colors duration-500 ease-in-out">
+                  
+                    {children}
+                </div>
             </div>
-          </DashboardGuard>
-        </AuthWrapper>
-      </body>
-    </html>
+          </ThemeShell>
+        </DashboardGuard>
+      </AuthWrapper>
+    </>
+
   );
 }

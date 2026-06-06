@@ -62,6 +62,9 @@ export interface Order {
 
 export interface OrderItem {
   productName: string;
+  originalPriceInKobo: number,   // store original price
+  unitPriceInKobo: number,       // store price after discount
+  discountAppliedInKobo: number, // discount applied safely
   priceInKobo: number;
   quantity: number;
   unitType?: string;
@@ -73,8 +76,11 @@ export interface OrderItem {
     createdAt: string;
     productId: string;
   };
+  deliveryType: string;
   productId: string;
   discountId: string | null;
+  estimatedDeliveryStart?: string,
+  estimatedDeliveryEnd?: string,
 }
 
 

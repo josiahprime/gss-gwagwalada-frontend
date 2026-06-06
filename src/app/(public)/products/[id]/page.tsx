@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
 import ProductInfo from "../../../../../sections/pageProps/productDetails/ProductInfo";
-import ProductsOnSale from "../../../../../sections/pageProps/productDetails/ProductsOnSale";
+import RecommendedProducts from "../../../../../sections/pageProps/productDetails/RecommendedProducts";
 import ProductInfoSkeleton from "app/components/ui/ProductInfoSkeleton";
 import { useProductStore } from "store/product/useProductStore";
 import { useAuthStore } from "store/auth/useAuthStore";
@@ -23,6 +23,7 @@ const ProductDetails = () => {
   const singleProduct = useProductStore((state) => state.singleProduct);
   const fetchProductById = useProductStore((state) => state.fetchProductById);
   const isLoading = useProductStore((state) => state.isLoading);
+  const trackView = useProductStore((state)=>state.trackView)
 
   const [activeTab, setActiveTab] = React.useState<
     "details" | "reviews" | "faqs"
@@ -34,11 +35,21 @@ const ProductDetails = () => {
     }
   }, [id, userId, fetchProductById]);
 
+  useEffect(() => {
+    if (!singleProduct?.id) return;
+    trackView(singleProduct.id);
+  }, [singleProduct?.id, trackView]);
+
+
+
+
   if (isLoading || !singleProduct) {
     return (
       <ProductInfoSkeleton/>
     );
   }
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -66,7 +77,7 @@ const ProductDetails = () => {
 
             {/* Products on sale */}
             <div className="mt-12">
-              <ProductsOnSale />
+              <RecommendedProducts />
             </div>
           </div>
         </div>

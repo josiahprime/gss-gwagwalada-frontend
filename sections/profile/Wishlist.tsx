@@ -12,12 +12,12 @@ import { formatCurrency } from "utils/FormatCurrency";
 
 export default function WishlistPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 8;
   const router = useRouter();
 
   const fetchFavorites = useProductStore((state) => state.fetchFavorites);
   const toggleFavorite = useProductStore((state) => state.toggleFavorite);
-  const favorites = useProductStore((state) => state.favorites);
+  const favorites = useProductStore((state) => state.favoriteProducts);
   const loading = useProductStore((state) => state.isLoading);
   const userId = useAuthStore((state) => state.authUser?.id);
 

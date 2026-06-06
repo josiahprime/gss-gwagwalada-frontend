@@ -40,6 +40,7 @@ export interface AccountState {
   updatePassword: (currentPassword: string, newPassword: string) => Promise<void>;
   updateAddress: (data: AddressData) => Promise<void>;
   fetchAddress: () => Promise<void>;
+  deleteUser: (userId: string) => Promise<{ message: string }>;
 }
 
 export interface AddressData {

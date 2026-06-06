@@ -11,13 +11,15 @@ import {
   Leaf,
   Star,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+
+import { useEffect, useState, useRef, useCallback } from "react";
 import useNotificationsStore from "store/notification/useNotificationStore";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import toast from "react-hot-toast";
 import Button from "app/components/Button/Button";
 import { useAuthStore } from "store/auth/useAuthStore";
+import NotificationSkeleton from "app/components/ui/NotificationSkeleton";
 
 const notificationIconMap = {
   order: { icon: Package, color: "text-orange-600", bgColor: "bg-orange-100" },
@@ -30,10 +32,13 @@ const notificationIconMap = {
 };
 
 export function NotificationsContent() {
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleCount, setVisibleCount] = useState(5);
+  const observer = useRef<IntersectionObserver | null>(null);
+
   const searchParams = useSearchParams();
   const currentSection = searchParams.get("section");
-  const userId = useAuthStore((state)=>state.authUser?.id)
+
+  const userId = useAuthStore((state) => state.authUser?.id);
   const router = useRouter();
 
   const notifications = useNotificationsStore((state) => state.notifications);
@@ -42,22 +47,29 @@ export function NotificationsContent() {
   const markAllAsSeen = useNotificationsStore((state) => state.markAllAsSeen);
   const isLoading = useNotificationsStore((state) => state.isLoading);
 
+  // Fetch notifications on mount
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
+  // Mark all as seen when userId becomes available
   useEffect(() => {
-    if (userId) {
-      markAllAsSeen(userId);
-    }
+    if (userId) markAllAsSeen(userId);
   }, [userId, markAllAsSeen]);
 
+  // Cleanup observer on unmount
+  useEffect(() => {
+    return () => {
+      if (observer.current) observer.current.disconnect();
+    };
+  }, []);
 
-  const unreadCount = notifications.filter((n) => !n.seen).length;
+  // const unreadCount = notifications.filter((n) => !n.seen).length;
   const visibleNotifications = notifications.slice(0, visibleCount);
 
   const handleNotificationClick = async (notificationId: string) => {
     const notification = notifications.find((n) => n.id === notificationId);
+
     if (notification && !notification.read) {
       const success = await markAsRead(notificationId);
       if (!success) {
@@ -65,19 +77,38 @@ export function NotificationsContent() {
         return;
       }
     }
+
     router.push(`/account?section=${currentSection}&id=${notification?.id}`);
   };
 
   const handleLoadMore = () => {
-    setVisibleCount((prev) => prev + 10);
+    if (visibleCount < notifications.length) {
+      setVisibleCount((prev) => prev + 5);
+    }
   };
 
-  
+  const lastNotificationRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && visibleCount < notifications.length) {
+            handleLoadMore();
+          }
+        },
+        { rootMargin: "100px" }
+      );
+
+      if (node) observer.current.observe(node);
+    },
+    [visibleCount, notifications.length]
+  );
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full"></div>
+      <div className="flex items-center justify-center">
+        <NotificationSkeleton count={5} />
       </div>
     );
   }
@@ -90,6 +121,7 @@ export function NotificationsContent() {
           <div className="bg-gradient-to-r from-green-100 to-emerald-100 p-3 rounded-2xl">
             <Bell className="w-6 h-6 text-green-600" />
           </div>
+
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
             <p className="text-gray-600 text-sm">
@@ -97,9 +129,18 @@ export function NotificationsContent() {
             </p>
           </div>
         </div>
-        {unreadCount > 0 && (
-          <div className="px-4 py-1 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-full text-sm font-semibold shadow-md">
-            {unreadCount} Unread
+
+        {visibleCount < notifications.length && (
+          <div className="flex justify-center mt-4">
+            <div className="w-full max-w-xl p-5 rounded-2xl bg-white border border-gray-100 animate-pulse">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-2xl bg-gray-200 w-10 h-10 flex-shrink-0"></div>
+                <div className="flex-1 min-w-0 pt-1">
+                  <div className="h-4 bg-gray-200 rounded w-5/6 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-4/6"></div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -114,6 +155,7 @@ export function NotificationsContent() {
           <CheckCircle className="w-4 h-4 mr-2" />
           Mark All as Read
         </Button>
+
         <Button
           variant="outline"
           size="sm"
@@ -128,24 +170,27 @@ export function NotificationsContent() {
         <div className="flex flex-col items-center justify-center py-20 text-center text-gray-600">
           <BellOff className="w-16 h-16 mb-4 text-green-500" />
           <h3 className="text-lg font-semibold text-gray-800 mb-1">
-            You're All Caught Up!
+            You&apos;re All Caught Up!
           </h3>
           <p className="text-sm max-w-sm">
-            You don’t have any notifications right now. We'll keep you updated
+            You don&apos;t have any notifications right now. We&apos;ll keep you updated
             when something comes up.
           </p>
         </div>
       ) : (
         <div className="space-y-4">
-          {visibleNotifications.map((notification) => {
-            const { icon: IconComponent, color, bgColor } =
-            notificationIconMap[notification.type as keyof typeof notificationIconMap] ||
-            notificationIconMap.default;
+          {visibleNotifications.map((notification, index) => {
+            const isLast = index === visibleNotifications.length - 1;
 
+            const { icon: Icon, color, bgColor } =
+              notificationIconMap[
+                notification.type as keyof typeof notificationIconMap
+              ] || notificationIconMap.default;
 
             return (
               <div
                 key={notification.id}
+                ref={isLast ? lastNotificationRef : null}
                 onClick={() => handleNotificationClick(notification.id)}
                 className={`p-5 rounded-2xl cursor-pointer transition-all duration-300 border border-transparent hover:border-green-200 hover:shadow-md transform hover:scale-[1.01] ${
                   !notification.seen
@@ -154,11 +199,10 @@ export function NotificationsContent() {
                 }`}
               >
                 <div className="flex items-start gap-4">
-                  <div
-                    className={`p-3 rounded-2xl ${bgColor} flex-shrink-0 shadow-inner`}
-                  >
-                    <IconComponent className={`w-5 h-5 ${color}`} />
+                  <div className={`p-3 rounded-2xl ${bgColor} shadow-inner`}>
+                    <Icon className={`w-5 h-5 ${color}`} />
                   </div>
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-1">
                       <h4
@@ -168,6 +212,7 @@ export function NotificationsContent() {
                       >
                         {notification.title}
                       </h4>
+
                       <span className="text-xs text-gray-500 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {formatDistanceToNow(new Date(notification.createdAt), {
@@ -175,9 +220,11 @@ export function NotificationsContent() {
                         })}
                       </span>
                     </div>
+
                     <p className="text-gray-600 text-xs leading-relaxed">
                       {notification.message}
                     </p>
+
                     <p className="text-green-600 text-xs mt-1 font-medium">
                       Click to read more...
                     </p>
@@ -186,18 +233,12 @@ export function NotificationsContent() {
               </div>
             );
           })}
-        </div>
-      )}
 
-      {/* Load More */}
-      {visibleCount < notifications.length && (
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={handleLoadMore}
-            className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-xl font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200"
-          >
-            Load More
-          </button>
+          {visibleCount < notifications.length && (
+            <div className="text-center py-4">
+              <p className="text-gray-500 text-sm">Loading more notifications...</p>
+            </div>
+          )}
         </div>
       )}
     </div>

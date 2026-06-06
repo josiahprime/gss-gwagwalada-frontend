@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useRef, useEffect } from "react";
+import { useRouter} from "next/navigation";
 import {
   User,
   Package,
@@ -20,6 +20,7 @@ import {
   Camera,
   Loader2,
 } from "lucide-react";
+import Image from "next/image";
 import { AccountOverview } from "./AccountOverview";
 import OrdersContent from "./OrdersContent";
 import WishlistPage from "./Wishlist";
@@ -35,6 +36,7 @@ import NewsletterPreferencesPage from "./NewsletterPreferencesPage";
 import Sellers from "./Sellers";
 import Address from "./Address";
 import RecentlyViewed from "./RecentlyViewed";
+import OrderDetails from "../OrderDetails/OrderDetails";
 
 type ProfileSection =
   | "account"
@@ -66,16 +68,49 @@ const menuItems: { id: ProfileSection; label: string; icon: any }[] = [
 ];
 
 export default function ProfileMobile() {
+  
   const authUser = useAuthStore((state) => state.authUser);
   const searchParams = useSearchParams()
-  const notificationId = searchParams.get("id")
+  // const notificationId = searchParams.get("id")
   const updateProfilePic = useAuthStore((state) => state.updateProfile);
   const isLoading = useAuthStore((state) => state.isUpdatingProfile);
   const [activeSection, setActiveSection] = useState<ProfileSection | null>(
     null
   );
+
+  
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Read section and IDs from URL
+  const sectionFromUrl = searchParams.get("section") as ProfileSection | null; 
+
+
+  // Resetting these variables to use a single `id` from the URL:
+  const itemIdFromUrl = searchParams.get("id") as string | null;
+
+
+  // === NEW useEffect Hook ===
+  // useEffect(() => {
+  //   // 1. If a section is in the URL (e.g., /account?section=orders), use it.
+  //   if (sectionFromUrl) {
+  //     setActiveSection(sectionFromUrl);
+  //   } 
+  //   // 2. If the URL is just /account with no section parameter, 
+  //   //    ensure activeSection is null to show the main menu.
+  //   else if (!sectionFromUrl && activeSection !== null) {
+  //     setActiveSection(null);
+  //   }
+  // }, [sectionFromUrl]);
+
+  useEffect(() => {
+    if (sectionFromUrl) {
+      setActiveSection(sectionFromUrl);
+    } else {
+      setActiveSection(null);
+    }
+  }, [sectionFromUrl]);
+
 
   const handleProfilePicChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -91,8 +126,21 @@ export default function ProfileMobile() {
     switch (activeSection) {
       case "account":
         return <AccountOverview />;
+
+
       case "orders":
-        return <OrdersContent />;
+        // 🎯 The critical fix: Check if an 'id' is present in the URL
+        return itemIdFromUrl ? (
+            // 1. Render the Order Details page
+            // You must ensure this component exists and accepts an orderId prop
+            // Replace this with your actual component: <OrderDetails orderId={itemIdFromUrl} />
+            // <div className="p-4 bg-white rounded-xl shadow">Order Details for ID: {itemIdFromUrl}</div>
+            <OrderDetails  orderId={itemIdFromUrl}/>
+        ) : (
+            // 2. Otherwise, render the main Orders List
+            <OrdersContent />
+        );
+        
       case "wishlist":
         return <WishlistPage />;
       case "management":
@@ -120,8 +168,8 @@ export default function ProfileMobile() {
         return <NewsletterPreferencesPage/>;
 
       case "notifications":
-        return notificationId ? (
-          <NotificationDetail notificationId = {notificationId}/>
+        return itemIdFromUrl ? (
+          <NotificationDetail notificationId = {itemIdFromUrl}/>
         ) : (
           <NotificationsContent />
         )
@@ -147,7 +195,7 @@ export default function ProfileMobile() {
             <div className="relative bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-2xl p-5 shadow-md flex flex-col items-center text-center sm:flex-row sm:text-left sm:gap-5 sm:items-center">
               {/* Back Button */}
               <button
-                onClick={() => router.back()}
+                onClick={() => router.push('/')}
                 className="absolute left-4 top-4 flex items-center gap-2 px-3 py-2 
                           bg-white/10 backdrop-blur-md border border-white/20 
                           text-white rounded-full shadow-md hover:bg-white/20 
@@ -161,16 +209,21 @@ export default function ProfileMobile() {
               {/* Profile Picture */}
               <div className="relative">
                 {authUser?.profilePic ? (
-                  <img
-                    src={authUser.profilePic}
-                    alt="Profile"
-                    className="w-20 h-20 sm:w-16 sm:h-16 rounded-full object-cover border-4 border-white shadow-md"
-                  />
+                  <div className="relative w-20 h-20 sm:w-16 sm:h-16 rounded-full overflow-hidden border-4 border-white shadow-md">
+                    <Image
+                      src={authUser.profilePic}
+                      alt="Profile"
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="w-20 h-20 sm:w-16 sm:h-16 rounded-full bg-white/20 flex items-center justify-center shadow-inner border border-white/30">
                     <User className="w-8 h-8 sm:w-7 sm:h-7 text-white/90" />
                   </div>
                 )}
+
 
                 {/* Camera Icon for Updating Profile */}
                 <button
@@ -277,17 +330,16 @@ export default function ProfileMobile() {
           </>
         ) : (
           <>
-            {/* Back Button */}
+            {/* Floating Back Button */}
             <button
               onClick={() => setActiveSection(null)}
-              className="inline-flex items-center gap-2 px-3 py-2 mb-4 rounded-full 
-                        text-sm font-medium text-emerald-700 bg-emerald-50 
-                        hover:bg-emerald-100 active:scale-95 transition-all duration-300
-                        shadow-sm"
+              className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full 
+                        bg-emerald-600 text-white shadow-lg flex items-center justify-center
+                        active:scale-95 transition-all duration-300 hover:bg-emerald-700"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Menu</span>
+              <ArrowLeft className="w-6 h-6" />
             </button>
+
 
 
             {/* Dynamic Section Content */}

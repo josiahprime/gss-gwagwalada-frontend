@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; 
+import { useRef } from "react";
 import { useCartStore } from "store/cart/useCartStore";
 import { useCheckoutStore } from "store/checkout/useCheckoutStore";
 import { ShoppingBag, CreditCard, Package, CheckCircle, Lock, Star, X } from "lucide-react";
@@ -11,6 +13,7 @@ import ShippingForm from "app/components/Checkout/ShippingForm";
 import PaymentSection from "app/components/Checkout/PaymentSection";
 import { useOrderStore } from "store/order/useOrderStore";
 import { CheckoutRequestPayload } from "store/checkout/checkoutTypes";
+import { useFormStore } from "store/checkout/useFormStore";
 
 
 
@@ -20,6 +23,7 @@ import { CheckoutRequestPayload } from "store/checkout/checkoutTypes";
 export type FormField = "firstName" | "lastName" | "city" | "state"  | "email" | "phone" | "address" | "extraInstructions" | "landmark" | "postalCode" | "pickupStation";
 
 const CheckoutPage = () => {
+  const router = useRouter();
   const [deliveryType, setDeliveryType] = useState<"home" | "pickup">("home");
   const [calculationDone, setCalculationDone] = useState(false);
   const cartItems = useCartStore((state) => state.items);
@@ -30,35 +34,46 @@ const CheckoutPage = () => {
   const amount = useCheckoutStore((state)=>(state.amount))
   const preview = useOrderStore((state)=>(state.preview)) 
   const isPaying = useCheckoutStore((state)=>(state.isPaying))
+  const currentStep = useCheckoutStore((state) => state.currentStep);
+  const setCurrentStep = useCheckoutStore((state) => state.setCurrentStep);
+  const hasRedirected = useRef(false);
 
-  // const OrderSummary = dynamic(() => import("app/components/Checkout/OrderSummary"), {
-  //   ssr: false,
-  // });
-  // const ShippingForm = dynamic(() => import("app/components/Checkout/ShippingForm"), {
-  //   ssr: false,
-  // });
-  
-  
+   useEffect(() => {
+    if (!hasRedirected.current && (!cartItems || cartItems.length === 0)) {
+      hasRedirected.current = true; // ✅ prevent duplicate toasts
+
+      toast(
+        "✨ Poof! Your cart is empty… Sending you to products! ",
+        {
+          duration: 5000,
+          style: {
+            background: "white",
+            color: "#111",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            borderRadius: "12px",
+            padding: "12px 20px",
+            textAlign: "center",
+            fontWeight: "500",
+            fontSize: "15px",
+          },
+          icon: "",
+        }
+      );
+
+      setTimeout(() => {
+        router.push("/products");
+      }, 400); // small delay so toast appears before redirect
+    }
+  }, [cartItems, router]);
 
 
-  const [currentStep, setCurrentStep] = useState(1);
+
+
   const [showSummary, setShowSummary] = useState(false);
 
   console.log('items', items)
 
-  const [formData, setFormData] = useState<Record<FormField, string>>({
-    firstName: '',
-    lastName: '',
-    city: '',
-    state: '',
-    email: "",
-    phone: "",
-    address: "",
-    landmark: "",
-    extraInstructions: "",
-    postalCode: "",
-    pickupStation: ""
-  });
+  const { formData, setFormData } = useFormStore();
 
 
   useEffect(() => {
@@ -67,12 +82,47 @@ const CheckoutPage = () => {
     }
   }, [calculationDone, preview, setAmount]);
 
+  useEffect(() => {
+    const stored = localStorage.getItem("checkout-store");
+    // checkout-store
+    
+
+    if (!stored) {
+      // First time arriving to checkout
+      setCurrentStep(1);
+    }
+  }, [setCurrentStep]);
+
+
+  const hasCalculated = useRef(false);
+
+  useEffect(() => {
+    if (!hasCalculated.current && cartItems.length && formData.city && formData.state && currentStep >= 2) {
+      hasCalculated.current = true;
+
+      console.log("🎯 Running previewOrder");
+      previewOrder(cartItems, { state: formData.state, city: formData.city }, deliveryType)
+        .then(() => setCalculationDone(true))
+        .catch(() => {
+          toast.error("Failed to restore order preview. Please recalculate.");
+          setCurrentStep(1);
+        });
+    }
+  }, [cartItems, formData, currentStep, deliveryType, previewOrder, setCurrentStep]);
+
+
+  
+
+
+
+
+
 
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData({ [e.target.name]: e.target.value });
   };
 
 
@@ -106,7 +156,7 @@ const CheckoutPage = () => {
     }
 
     const formattedItems: CheckoutRequestPayload["items"] = cartItems.map(item => ({
-      productId: item.id,
+      productId: item.productId,
       quantity: item.quantity,
       discountId: item.discountId ?? undefined, 
     }));

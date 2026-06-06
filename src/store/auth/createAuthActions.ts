@@ -50,25 +50,6 @@ export const createAuthActions: StateCreator<
   },
 
 
-  // signup: async (data: SignupPayload) => {
-  //   set({ isSigningUp: true });
-  //   try {
-  //     const res = await axiosInstance.post('/auth/signup', data);
-  //     return {
-  //       success: true,
-  //       message: res.data.message || 'User registered successfully. Check your email.',
-  //     };
-  //   } catch (err) {
-  //     const error = err as AxiosError<{ error: string }>;
-  //     return {
-  //       success: false,
-  //       message: error?.response?.data?.error || 'Signup failed',
-  //     };
-  //   } finally {
-  //     set({ isSigningUp: false });
-  //   }
-  // },
-
   signup: async (data: SignupPayload) => { 
     set({ isSigningUp: true });
     try {
@@ -112,31 +93,28 @@ export const createAuthActions: StateCreator<
 
   login: async (data: LoginPayload) => {
     set({ isLoggingIn: true });
+
     try {
       const res = await axiosInstance.post('/auth/login', data, { withCredentials: true });
 
       const token = res.data.accessToken;
-      console.log('token from backend', token);
 
-      // ✅ Clear persisted auth storage first
-      // Clear persisted auth storage first
       await Promise.resolve(useAuthStore.persist?.clearStorage?.());
-
 
       set({
         authUser: res.data.user,
         accessToken: token,
-        isLoggedOut: false,       // ✅ clear the logged out flag
-        logoutReason: undefined, 
+        isLoggedOut: false,
+        logoutReason: undefined,
+        isLoggingIn: false, // ✅ reset here
       });
 
-      
-      // Sync local cart with backend
       const cart = useCartStore.getState();
       await cart.mergeCart();
 
       toast.success('Logged in successfully');
       return true;
+
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;
       const status = error.response?.status;
@@ -148,7 +126,11 @@ export const createAuthActions: StateCreator<
       } else {
         toast.error('Login failed. Try again.');
       }
+
       return false;
+
+    } finally {
+      set({ isLoggingIn: false }); // 🧹 always reset, even if something exploded
     }
   },
 
@@ -188,46 +170,13 @@ export const createAuthActions: StateCreator<
 
 
 
-  // login: async (data: LoginPayload) => {
-  //   set({ isLoggingIn: true });
-  //   try {
-  //     const res = await axiosInstance.post('/auth/login', data, { withCredentials: true });
-      
-  //     const token = res.data.accessToken;
-  //     console.log('token from backend', token)
-      
-  //     // Set axios default headers for future requests
-  //     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      
-  //     // get().setAccessToken(token);
-  //     set({ authUser: res.data.user });
-
-  //     // Sync local cart with backend
-  //     const cart = useCartStore.getState();
-  //     await cart.mergeCart();
-
-  //     toast.success('Logged in successfully');
-  //     return true
-  //   } catch (err) {
-  //     const error = err as AxiosError<{ error: string }>;
-  //     console.log(error.response?.data?.error || 'Login failed');
-  //     return false
-  //   } finally {
-  //     set({ isLoggingIn: false });
-  //   }
-  // },
-
-
   logout: async (reason: "manual" | "auto" = "manual") => {
     console.log('trying to logout');
-    const method = get().authUser?.authProvider;
+    // const method = get().authUser?.authProvider;
 
     try {
-      if (method === 'google') {
-        await axiosInstance.get('/auth/google/logout');
-      } else {
-        await axiosInstance.post('/auth/logout');
-      }
+  
+      await axiosInstance.post('/auth/logout');
 
       delete axiosInstance.defaults.headers.common['Authorization'];
 
@@ -312,21 +261,23 @@ export const createAuthActions: StateCreator<
 
 
   requestPasswordReset: async (email: string) => {
-    if (!email) {
-      toast.error('Email required');
-      return
-    }
+    if (!email) return { success: false, message: 'Email required' };
+
     set({ isRequestingReset: true });
     try {
       const res = await axiosInstance.post('/auth/forgot-password', { email });
-      toast.success(res.data.message);
+      return { success: true, message: res.data.message }; // return message
     } catch (err) {
       const error = err as AxiosError<{ error: string }>;
-      toast.error(error.response?.data?.error || 'Reset request failed');
+      return { 
+        success: false, 
+        message: error.response?.data?.error || 'Reset request failed' 
+      };
     } finally {
       set({ isRequestingReset: false });
     }
   },
+
 
   resetPassword: async (data: ResetPasswordPayload): Promise<boolean> => {
     set({ isResettingPassword: true });

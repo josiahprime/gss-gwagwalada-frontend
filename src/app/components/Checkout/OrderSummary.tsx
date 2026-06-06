@@ -101,7 +101,7 @@ const OrderSummary = ({ items, calculationDone }: OrderSummaryProps) => {
             <div className="border-t border-gray-200 pt-4">
               <div className="flex justify-between items-center">
                 <span className="text-lg font-bold text-gray-900">Total</span>
-                <span className="md:text-2xl text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text text-transparent">
+                <span className="md:text-xl text-lg font-bold bg-gradient-to-r from-green-600 to-emerald-700 bg-clip-text text-transparent">
                   {formatCurrency(preview.total)}
                 </span>
               </div>

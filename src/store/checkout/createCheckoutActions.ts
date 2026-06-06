@@ -21,6 +21,9 @@ export const createCheckoutSlice: StateCreator<
   items: [],
   status: "loading",
   message: "",
+  currentStep: 1,
+  calculationDone: false,
+
 
   setAmount: (amount) => set({ amount }),
   setItems: (items) =>
@@ -31,6 +34,10 @@ export const createCheckoutSlice: StateCreator<
         discountId: undefined, // or item.discountId if it exists
       })),
     }),
+
+    setCurrentStep: (step: number) => set({ currentStep: step }),
+    setCalculationDone: (value: boolean) => set({ calculationDone: value }),
+
 
 
   // 🟢 Initiates Paystack payment
@@ -85,9 +92,8 @@ export const createCheckoutSlice: StateCreator<
 
   // 🟢 Verifies Paystack payment after redirect
   verifyPayment: async (reference: string) => {
+    console.log("🔁 Verifying payment for reference:", reference);
     try {
-      console.log("🔁 Verifying payment for reference:", reference);
-
       const response = await axiosInstance.get<{ status: string }>(
         `/pay/paystack/verify/${reference}`
       );

@@ -2,12 +2,16 @@
 import React from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { BsFillCheckCircleFill, BsExclamationTriangleFill } from "react-icons/bs";
+import DashboardHeader from "../components/dashboardHeader/DashboardHeader";
+import { useThemeStore } from "store/theme/themeStore";
 import { FaServer } from "react-icons/fa";
 import { MdSecurity } from "react-icons/md";
+import { Activity, ShieldCheck } from "lucide-react";
 
 const SystemHealth = () => {
   const cpuData = [{ name: "Used", value: 70 }, { name: "Free", value: 30 }];
   const memoryData = [{ name: "Used", value: 60 }, { name: "Free", value: 40 }];
+  const theme = useThemeStore((s) => s.theme);
 
   const COLORS = ["#4caf50", "#d9d9d9"]; // Green for used, Gray for free
 
@@ -15,12 +19,21 @@ const SystemHealth = () => {
 
     <div className="flex">
       {/* Main Content */}
-      <div className="flex-6 w-screen">
+      <div
+        className={`shadow-md p-4 m-4 w-full rounded-lg transition-colors duration-500
+          ${theme === "dark" ? "bg-gray-800 text-gray-200" : "bg-white text-gray-500"}`}
+      >
 
-        <div className="p-6">
-          <h1 className="text-2xl font-bold text-gray-800 text-center mb-8">
-            System Health Dashboard
-          </h1>
+        <div className="p-6">     
+        <DashboardHeader
+          title="System Health Dashboard"
+          description="Monitor system performance, uptime, and service status"
+          badgeText="System"
+          BadgeIcon={ShieldCheck}
+          infoLabel="Live system status"
+          InfoIcon={Activity}
+          theme={theme}
+        />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Server Status */}

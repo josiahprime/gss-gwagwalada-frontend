@@ -1,5 +1,6 @@
 "use client"
 import ReCAPTCHA from 'react-google-recaptcha';
+import Image from 'next/image';
 import { useRef } from 'react';
 import React, { useState, useEffect, useCallback } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -8,6 +9,8 @@ import toast from "react-hot-toast";
 import { useAuthStore } from "store/auth/useAuthStore";
 import SignupMobile from 'app/components/Signup/SignupMobile';
 import MobileCheckSkeleton from 'app/components/ui/MobileCheckSkeleton';
+import InfoModal from 'app/components/Modal/InfoModal';
+import { useAuthStore } from 'store/auth/useAuthStore';
 
 
 
@@ -28,6 +31,8 @@ const Signup = () => {
   const signupWithGoogle = useAuthStore((state)=>state.signupWithGoogle)
   const isSigningUp = useAuthStore((state) => state.isSigningUp);
   const [isMobile, setIsMobile] = useState<null | boolean>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const authUser = useAuthStore((state)=>state.authUser)
 
   const [formData, setFormData] = useState({
     username: "",
@@ -35,6 +40,14 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
+
+  useEffect(() => {
+    if (authUser) {
+      // Redirect logged-in users away from login page
+      router.replace("/"); // or "/dashboard" if you have a dashboard
+    }
+  }, [authUser, router]);
+
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -149,8 +162,7 @@ const Signup = () => {
     
 
     if (result?.success) {
-      toast.success("Verification email sent! Please check your inbox.");
-      router.push("/login");
+      setIsModalOpen(true);
     } else {
       toast.error(result?.message || "Signup failed. Try again.");
     }
@@ -290,13 +302,34 @@ const Signup = () => {
         </div>
 
         {/* Right Side */}
-        <div className="md:w-1/2 w-full bg-cover bg-center h-64 md:h-auto" style={{ backgroundImage: "url(https://res.cloudinary.com/djmnjen6v/image/upload/v1762093796/orange_jz5thl.jpg)" }}>
-          <div className="flex flex-col justify-center h-full text-white p-12">
-            <h1 className="text-4xl font-bold mb-4">Buy and sell farm produce with ease</h1>
-            <p className="text-lg">Join the marketplace that connects local farmers and fresh food lovers.</p>
+        <div className="md:w-1/2 w-full relative h-64 md:h-auto">
+          <Image
+            src="https://res.cloudinary.com/djmnjen6v/image/upload/v1762093796/orange_jz5thl.jpg"
+            alt="Marketplace"
+            fill
+            priority
+            className="object-cover"
+          />
+
+          <div className="absolute inset-0 flex flex-col justify-center text-white p-12 bg-black/40">
+            <h1 className="text-4xl font-bold mb-4">
+              Buy and sell farm produce with ease
+            </h1>
+            <p className="text-lg">
+              Join the marketplace that connects local farmers and fresh food lovers.
+            </p>
           </div>
         </div>
+
       </div>)}
+
+      <InfoModal 
+        isOpen={isModalOpen} 
+        onClose={() => {
+          setIsModalOpen(false);
+          router.push("/login"); // redirect after modal closes
+        }} 
+      />
     </>
   );
 };

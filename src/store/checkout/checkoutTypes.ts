@@ -44,6 +44,9 @@ export interface CheckoutState {
   items: CheckoutRequestItem[];
   status: 'loading' | 'success' | 'error';
   message: string;
+
+  currentStep: number;
+  calculationDone: boolean;
 }
 
 export interface CheckoutActions {
@@ -51,4 +54,6 @@ export interface CheckoutActions {
   setItems: (items: CheckoutItem[]) => void;
   handlePaystackPayment: (payload: PaystackPaymentPayload) => Promise<void>; // 👈 modified
   verifyPayment: (reference: string) => Promise<void>;
+   setCurrentStep: (step: number) => void;
+   setCalculationDone: (value: boolean) => void;
 }
