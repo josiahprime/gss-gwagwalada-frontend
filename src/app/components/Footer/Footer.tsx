@@ -25,7 +25,7 @@ useEffect(() => {
   return (
     
     <>
-     <footer className="bg-gradient-to-r from-green-600 to-emerald-700 pt-12 pb-6 px-6 md:px-12 font-[sans-serif] tracking-wide">
+     <footer className="bg-gradient-to-r from-blue-900 to-blue-500 pt-12 pb-6 px-6 md:px-12 font-[sans-serif] tracking-wide text-white">
       <div className="max-w-screen-xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="lg:flex lg:items-center">

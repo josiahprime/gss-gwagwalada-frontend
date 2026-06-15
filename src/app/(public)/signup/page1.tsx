@@ -13,7 +13,6 @@ import InfoModal from 'app/components/Modal/InfoModal';
 
 
 
-
 type GoogleCredentialResponse = {
   credential: string;
   select_by?: string;
@@ -180,7 +179,7 @@ const Signup = () => {
         <div className="md:w-1/2 w-full flex items-center justify-center bg-gray-50">
           <div className="w-96">
             <div className="uppercase text-2xl font-bold mb-4">
-              GSS GWAGWALADA<span className="text-[#0070f3] ml-1">CONNECT</span>
+              Rich<span className="text-green-500">Field</span>
             </div>
 
             <h3 className="text-xl mb-4 mt-2 text-black">Sign Up</h3>
@@ -304,7 +303,7 @@ const Signup = () => {
         {/* Right Side */}
         <div className="md:w-1/2 w-full relative h-64 md:h-auto">
           <Image
-            src="/images/gss-gwagwalada-login.jpg"
+            src="https://res.cloudinary.com/djmnjen6v/image/upload/v1762093796/orange_jz5thl.jpg"
             alt="Marketplace"
             fill
             priority
@@ -313,10 +312,10 @@ const Signup = () => {
 
           <div className="absolute inset-0 flex flex-col justify-center text-white p-12 bg-black/40">
             <h1 className="text-4xl font-bold mb-4">
-              Buy and sell school essentials with ease
+              Buy and sell farm produce with ease
             </h1>
             <p className="text-lg">
-              Join the marketplace that connects GSS students, parents, and vendors for all your school needs.
+              Join the marketplace that connects local farmers and fresh food lovers.
             </p>
           </div>
         </div>

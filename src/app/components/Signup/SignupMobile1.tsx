@@ -142,14 +142,14 @@ const SignupMobile = () => {
 
 
         <div className="uppercase text-2xl font-bold mb-2 text-center flex items-center justify-center gap-2 md:text-left">    
-        {/* <Image
-            src="/images/gss-gwagwalada-login.jpg"
+          <Image
+            src="https://res.cloudinary.com/djmnjen6v/image/upload/v1762097380/logo_f7mhch.png"
             alt="logo"
             width={32}
             height={32}
             className="w-8 h-auto"
-        /> */}
-        GSS Gwagwalada<span className="text-[#0070f3]">Connect</span>
+          />
+          Rich<span className="text-green-500">Field</span>
         </div>
 
         <h3 className="text-xl mb-4 text-black text-center md:text-left">Sign Up</h3>

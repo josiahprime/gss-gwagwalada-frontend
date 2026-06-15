@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Ticket } from "store/ticket/ticketTypes";
+import type { CreateTicketPayload } from "store/ticket/ticketTypes";
 import { SupportHeader } from "./components/SupportHeader";
 import { SupportIntro } from "./components/SupportIntro";
 import { NewTicketForm } from "./components/NewTicketForm";
@@ -22,7 +23,7 @@ export default function CustomerSupportPage() {
   }, [fetchMyTickets, initSocket]);
 
   // Create a new ticket
-  async function handleCreateTicket(ticketData: Omit<Ticket, "id" | "createdAt" | "updatedAt">) {
+  async function handleCreateTicket(ticketData: CreateTicketPayload) {
     try {
       const newTicket = await createTicket(ticketData);
       setSelectedTicketId(newTicket.id);

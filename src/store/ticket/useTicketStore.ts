@@ -5,7 +5,7 @@ import axiosInstance from "lib/axios";
 
 
 export const useTicketStore = create<TicketState & TicketActions>()(
-  (set, get) => ({
+  (set, get, store) => ({
     tickets: [],
     loading: false,
     selectedTicket: null,
@@ -19,7 +19,7 @@ export const useTicketStore = create<TicketState & TicketActions>()(
     isTyping: false,
     typingUser: null,
 
-    ...createTicketActions(axiosInstance)(set, get),
+    ...createTicketActions(axiosInstance)(set, get, store),
   })
 );
 

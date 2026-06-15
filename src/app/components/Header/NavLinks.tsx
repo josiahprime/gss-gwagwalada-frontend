@@ -13,7 +13,7 @@ import {
   User,
   LogIn,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 const navLinks = [
   { to: "/", label: "Home", icon: <Home className="w-4 h-4 lg:hidden" /> },
@@ -22,7 +22,7 @@ const navLinks = [
   { to: "/contact", label: "Contact", icon: <Phone className="w-4 h-4 lg:hidden" /> },
 ];
 
-const listVariants = {
+const listVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
     opacity: 1,

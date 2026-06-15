@@ -112,15 +112,16 @@ const LoginMobile = () => {
     <div className="w-full max-w-md p-6 bg-white/30 backdrop-blur-md rounded-xl shadow-lg mt-12 mb-12 
                     md:bg-white md:backdrop-blur-0 flex flex-col justify-center">
 
-        <div className="uppercase text-2xl font-bold mb-2 text-center flex items-center justify-center gap-2 md:text-left">    
-        {/* <Image
-            src="/images/gss-gwagwalada-login.jpg"
+        {/* Logo */}
+        <div className="uppercase text-2xl font-bold mb-2 text-center flex items-center justify-center gap-2">
+        <Image
+            src="https://res.cloudinary.com/djmnjen6v/image/upload/v1762097380/logo_f7mhch.png"
             alt="logo"
             width={32}
             height={32}
             className="w-8 h-auto"
-        /> */}
-        GSS Gwagwalada<span className="text-[#0070f3]">Connect</span>
+        />
+        Rich<span className="text-green-500">Field</span>
         </div>
 
         {/* Title */}

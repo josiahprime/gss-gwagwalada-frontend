@@ -4,7 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { SearchX, RefreshCcw } from "lucide-react";
 
-type EmptyType = "search" | "category" | "price";
+type EmptyType = "search" | "category" | "price" | "multiple";
 
 interface SearchEmptyStateProps {
   onClear: () => void;

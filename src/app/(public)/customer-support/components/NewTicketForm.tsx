@@ -1,15 +1,14 @@
 import { useState } from "react";
-import type { Ticket, TicketCategory, TicketPriority, CreateTicketPayload } from "store/ticket/ticketTypes";
+import type { TicketCategory, TicketPriority, CreateTicketPayload } from "store/ticket/ticketTypes";
 import { FormField } from "./FormField";
 import { CategorySelect } from "./CategorySelect";
 import PrioritySelect from "./PrioritySelect";
 import { SubmitButton } from "./SubmitButton";
-import { Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 
 interface NewTicketFormProps {
   onCreateTicket: (payload: CreateTicketPayload) => Promise<void>;
 }
-
 
 export function NewTicketForm({ onCreateTicket }: NewTicketFormProps) {
   const [loading, setLoading] = useState(false);
@@ -20,32 +19,53 @@ export function NewTicketForm({ onCreateTicket }: NewTicketFormProps) {
   const [category, setCategory] = useState<TicketCategory>("general");
   const [priority, setPriority] = useState<TicketPriority>("low");
 
+  // 1. Define an error state string
+  const [error, setError] = useState<string | null>(null);
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null); // Reset any old error states
+
+    // 2. Validate empty values before anything else runs
+    if (!subject.trim()) {
+      setError("Please provide a subject line for your issue.");
+      return;
+    }
+    if (!message.trim()) {
+      setError("Please write a detailed message so we can assist you.");
+      return;
+    }
+
     setLoading(true);
 
     onCreateTicket({
-      subject,
+      subject: subject.trim(),
       category,
       priority,
-      message, // 👈 important
+      message: message.trim(),
     })
-      .finally(() => {
-        setLoading(false);
+      .then(() => {
+        // Only clear the form inputs if creation succeeds!
         setSubject("");
         setMessage("");
         setCategory("general");
         setPriority("low");
         setIsExpanded(false);
+      })
+      .catch((err) => {
+        // Fallback catch block handles API validation rejection messages
+        setError(err?.response?.data?.message || "An unexpected error occurred.");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }
-
 
   return (
     <div>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 mb-4 bg-white rounded-xl border border-gray-200 hover:border-green-300 shadow-sm"
+        className="w-full flex items-center justify-between p-4 mb-4 bg-white rounded-xl border border-gray-200 hover:border-green-300 shadow-sm transition-colors duration-200"
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -64,11 +84,19 @@ export function NewTicketForm({ onCreateTicket }: NewTicketFormProps) {
       </button>
 
       {isExpanded && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             <h2 className="text-lg font-medium text-gray-900">
               Open a New Ticket
             </h2>
+
+            {/* 3. Render inline warning alerts conditionally */}
+            {error && (
+              <div className="flex items-center gap-2 p-4 bg-red-50 text-red-700 rounded-lg text-sm font-medium border border-red-100">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
 
             <FormField
               label="Subject"

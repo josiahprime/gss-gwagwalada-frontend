@@ -5,6 +5,7 @@ import { useUiStore } from "store/ui/useUiStore";
 import { NavLinks } from "./NavLinks";
 import ThemeToggle from "./ThemeToggle";
 import CartIcon from "./CartIcon";
+import SupportIcon from "./SupportIcon";
 import SaleBanner from "./SaleBanner";
 import Logo from "./Logo";
 import MobileSidebar from "./MobileSidebar";
@@ -144,12 +145,15 @@ const Header = () => {
                         {authUser && <Notifications />}
                         <ThemeToggle />
                         {authUser ? <CartIcon /> : <LoginButton />}
+                        {authUser && <SupportIcon/> }
                         {!isCheckingAuth && authUser && <UserIcon />}
+                        
                     </div>
 
                     <div className="md:hidden block">
                         <CartIcon />
                     </div>
+
                 </div>
             </header>
 

@@ -10,6 +10,7 @@ interface Props {
 }
 
 const ProductSlider = ({ products }: Props) => {
+  
   const visibleCount = 5;
   const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
@@ -73,6 +74,8 @@ const ProductSlider = ({ products }: Props) => {
     }, 2000);
   };
 
+
+
   if (!products || total === 0) {
     return (
       <div className="text-center py-10 text-gray-500">
@@ -88,32 +91,33 @@ const ProductSlider = ({ products }: Props) => {
       onMouseLeave={handleMouseLeave}
     >
       {/* Sliding wrapper */}
-      <div
-        className={`flex gap-4 transition-transform duration-500 ease-in-out ${
-          animating ? "transform translate-x-0" : ""
-        }`}
-      >
-        {getVisibleProducts().map((product, idx) =>
-          product ? (
-            <div
-              key={product.id ?? `fallback-${idx}`}
-              className="flex-1 min-w-[220px] max-w-[280px] shrink-0"
-            >
-              <ProductCard
-                id={product.id}
-                productName={product.productName}
-                description={product.description}
-                priceInKobo={product.priceInKobo}
-                image={product.images?.[0]?.url ?? ""}
-                rating={product.rating}
-                unitType={product.unitType}
-                isFavorite={product.isFavorite || false}
-                stock={product.stock}
-              />
-            </div>
-          ) : null
-        )}
-      </div>
+<div
+  className={`flex gap-4 transition-transform duration-500 ease-in-out ${
+    animating ? "transform translate-x-0" : ""
+  }`}
+>
+    {getVisibleProducts().map((product, idx) =>
+      product ? (
+        <div
+          // 🔥 FIXED: Appending the array loop index guarantees uniqueness
+          key={`${product.id}-${idx}`}
+          className="flex-1 min-w-[220px] max-w-[280px] shrink-0"
+        >
+          <ProductCard
+            id={product.id}
+            productName={product.productName}
+            description={product.description}
+            priceInKobo={product.priceInKobo}
+            image={product.images?.[0]?.url ?? ""}
+            rating={product.rating}
+            unitType={product.unitType}
+            isFavorite={product.isFavorite || false}
+            stock={product.stock}
+          />
+        </div>
+      ) : null
+    )}
+  </div>
 
       {/* Previous Button */}
       <button

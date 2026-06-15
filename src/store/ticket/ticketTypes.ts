@@ -117,7 +117,7 @@ export interface TicketActions {
   /** Resolve a ticket */
   resolveTicket: (ticketId: string) => Promise<void>;
 
-   createTicket: (ticket: Omit<Ticket, "id" | "createdAt" | "updatedAt">) => Promise<Ticket>;
+   createTicket: (payload: CreateTicketPayload) => Promise<Ticket>;
 
    updateTicket: (updatedTicket: Ticket) => void;
 

@@ -17,13 +17,13 @@ export default function Contact() {
           className="absolute inset-0"
         >
           <Image
-            src="/images/gss-gwagwalada-about.jpg"
+            src="https://res.cloudinary.com/djmnjen6v/image/upload/v1760733248/contact_eaiv4t.jpg"
             alt="Contact background"
             fill
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/40" />
         </motion.div>
 
         {/* Hero Text */}
@@ -34,12 +34,12 @@ export default function Contact() {
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
         >
           <motion.h2
-            className="text-sm md:text-base text-white tracking-wide font-medium"
+            className="text-sm md:text-base text-white tracking-wide"
             initial={{ x: -30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            HOME / CONTACT US
+            HOME / CONTACT
           </motion.h2>
 
           <motion.h1
@@ -48,7 +48,7 @@ export default function Contact() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            Get In Touch With GSS Connect
+            Contact Us
           </motion.h1>
         </motion.div>
       </section>
@@ -56,13 +56,13 @@ export default function Contact() {
       {/* Content */}
       <section className="max-w-7xl mx-auto px-6 md:px-12 mt-16">
         <motion.h2
-          className="text-3xl font-bold text-[#0070f3] mb-8 md:text-center"
+          className="text-3xl font-bold text-[#29746b] mb-8 md:text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
         >
-          Have Questions? Message Our Vendors & Admins
+          Get in Touch
         </motion.h2>
 
         <div className="grid md:grid-cols-2 gap-12">
@@ -80,12 +80,12 @@ export default function Contact() {
                 <input
                   type="text"
                   id="name"
-                  className="peer w-full px-5 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-[#0070f3] transition"
+                  className="peer w-full px-5 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#29746b] focus:border-[#29746b] transition"
                   placeholder="Your Name"
                 />
                 <label
                   htmlFor="name"
-                  className="absolute left-5 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#0070f3]"
+                  className="absolute left-5 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#29746b]"
                 >
                   Your Name
                 </label>
@@ -96,14 +96,14 @@ export default function Contact() {
                 <input
                   type="email"
                   id="email"
-                  className="peer w-full px-5 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-[#0070f3] transition"
+                  className="peer w-full px-5 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#29746b] focus:border-[#29746b] transition"
                   placeholder="Your Email"
                 />
                 <label
                   htmlFor="email"
-                  className="absolute left-5 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#0070f3]"
+                  className="absolute left-5 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#29746b]"
                 >
-                  Your Email / Portal Username
+                  Your Email
                 </label>
               </div>
 
@@ -112,14 +112,14 @@ export default function Contact() {
                 <input
                   type="text"
                   id="subject"
-                  className="peer w-full px-5 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-[#0070f3] transition"
+                  className="peer w-full px-5 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#29746b] focus:border-[#29746b] transition"
                   placeholder="Subject"
                 />
                 <label
                   htmlFor="subject"
-                  className="absolute left-5 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#0070f3]"
+                  className="absolute left-5 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#29746b]"
                 >
-                  Subject (e.g., Order Issue, Vendor Inquiry)
+                  Subject
                 </label>
               </div>
 
@@ -128,23 +128,23 @@ export default function Contact() {
                 <textarea
                   id="message"
                   rows={5}
-                  className="peer w-full px-5 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-[#0070f3] transition"
+                  className="peer w-full px-5 pt-6 pb-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-800 placeholder-transparent focus:outline-none focus:ring-2 focus:ring-[#29746b] focus:border-[#29746b] transition"
                   placeholder="Message"
                 ></textarea>
                 <label
                   htmlFor="message"
-                  className="absolute left-5 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#0070f3]"
+                  className="absolute left-5 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-[#29746b]"
                 >
                   Message
                 </label>
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.97 }}
                 transition={{ duration: 0.2 }}
                 type="submit"
-                className="w-full bg-[#0070f3] hover:bg-[#0051b3] text-white font-semibold py-3 rounded-lg shadow-md transition"
+                className="w-full bg-[#29746b] hover:bg-[#143834] text-white font-semibold py-3 rounded-lg shadow-md transition"
               >
                 Send Message
               </motion.button>
@@ -160,34 +160,34 @@ export default function Contact() {
             className="space-y-8"
           >
             <div className="bg-white p-8 rounded-xl shadow-lg">
-              <h3 className="text-xl font-semibold text-[#0070f3] mb-4">
-                School Shop Hub Information
+              <h3 className="text-xl font-semibold text-[#29746b] mb-4">
+                Contact Information
               </h3>
-              <p className="text-gray-700 mb-3 leading-relaxed">
-                <strong>Address:</strong> Government Secondary School (GSS), 
-                Along Gwagwalada-Kwali Road, Gwagwalada, FCT Abuja, Nigeria
+              <p className="text-gray-700 mb-2">
+                <strong>Address:</strong> Behind Forest Hotel, Chukuku Village,
+                Along Kuje Road, FCT Abuja, Nigeria
               </p>
-              <p className="text-gray-700 mb-3">
-                <strong>Phone Lines:</strong> +234 803 700 2879, +234 806 571 5175
+              <p className="text-gray-700 mb-2">
+                <strong>Phone:</strong> +234 903 430 7204, +234 802 759 4643
               </p>
               <p className="text-gray-700">
-                <strong>Support Email:</strong> support@gssgwagwaladaconnect.com
+                <strong>Email:</strong> richfieldfarmsandsmoke@gmail.com
               </p>
             </div>
 
             <div className="bg-white p-8 rounded-xl shadow-lg">
-              <h3 className="text-xl font-semibold text-[#0070f3] mb-4">
-                Shop & Support Hours
+              <h3 className="text-xl font-semibold text-[#29746b] mb-4">
+                Business Hours
               </h3>
-              <div className="text-gray-700 text-sm space-y-2.5">
+              <div className="text-gray-700 text-sm space-y-2">
                 <p>
-                  <strong>School Days (Mon - Fri):</strong> 8:00 AM - 4:00 PM
+                  <strong>Mon - Fri:</strong> 9:00 AM - 6:00 PM
                 </p>
                 <p>
-                  <strong>Weekend Pickups (Saturday):</strong> 10:00 AM - 2:00 PM
+                  <strong>Saturday:</strong> 10:00 AM - 4:00 PM
                 </p>
                 <p>
-                  <strong>Sundays & Public Holidays:</strong> Closed
+                  <strong>Sunday:</strong> Closed
                 </p>
               </div>
             </div>

@@ -9,21 +9,23 @@ import {
   Phone,
   User,
   ShoppingCart,
+  Headset,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUiStore } from "store/ui/useUiStore";
 import { useAuthStore } from "store/auth/useAuthStore";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 const navLinks = [
   { to: "/", label: "Home", icon: Home },
   { to: "/about", label: "About", icon: Info },
   { to: "/products", label: "Products", icon: Package },
   { to: "/contact", label: "Contact", icon: Phone },
+  { to: "/customer-support", label: "Support", icon: Headset }, // 👈 Added Customer Support
 ];
 
-const listVariants = {
+const listVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
     opacity: 1,

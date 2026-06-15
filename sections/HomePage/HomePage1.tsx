@@ -3,7 +3,7 @@ import { useProductStore } from "store/product/useProductStore";
 import DealCard from "app/dashboard/components/DealCard/DealCard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-import {ArrowRight, School } from "lucide-react";
+import {ArrowRight, Tractor } from "lucide-react";
 import Link from "next/link";
 import Button from "../../src/app/components/Button/Button";
 import PopularProductsCarousel from "app/components/PopularProductsCarousel";
@@ -100,22 +100,22 @@ const HomePage = () => {
   }
 
 
- const bannerDeals = [
-  {
-    title: "Back to School Essentials",
-    subtitle: "Up to 50% OFF",
-    description: "Uniforms, shoes & school bags",
-    image: "/images/ankara-img.jpg",
-    color: "from-blue-500 to-indigo-600"
-  },
-  {
-    title: "Stationery & Books",
-    subtitle: "Daily Deals",
-    description: "Notebooks, pens & learning materials",
-    image: "/images/bag-img.jpg",
-    color: "from-purple-500 to-pink-600"
-  }
-];
+  const bannerDeals = [
+    {
+      title: "Fresh Harvest",
+      subtitle: "Up to 50% OFF",
+      description: "Organic vegetables & fruits",
+      image: "https://res.cloudinary.com/djmnjen6v/image/upload/v1760550956/photo-1542838132-92c53300491e_wzy3c2.jpg",
+      color: "from-green-500 to-emerald-600"
+    },
+    {
+      title: "Farm Fresh",
+      subtitle: "Daily Delivery",
+      description: "Straight from our farm",
+      image: "https://res.cloudinary.com/djmnjen6v/image/upload/v1760550955/photo-1500595046743-cd271d694d30_ffcvyk.jpg",
+      color: "from-orange-500 to-yellow-600"
+    }
+  ];
 
   
 
@@ -130,31 +130,21 @@ const HomePage = () => {
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Main Banner */}
             <div className="lg:col-span-2">
-              <div className="relative h-80 rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700">
+              <div className="relative h-80 rounded-2xl overflow-hidden bg-gradient-to-r from-green-600 to-emerald-700">
                 <div className="absolute inset-0 bg-black/20"></div>
                 <div className="relative z-10 p-8 h-full flex flex-col justify-center text-white">
                   <div className="flex items-center gap-2 mb-4">
-                <School className="w-8 h-8" />
-                <span className="text-sm font-medium">GSS Gwagwalada Connect</span>
-                </div>
-
-                <h1 className="text-3xl font-bold mb-4">
-                Everything You Need for<br/>School Life
-                </h1>
-
-                <p className="text-l mb-6 opacity-90">
-                Uniforms, books, stationery, and essentials<br/>delivered with ease
-                </p>
-
-                <Button
-                onClick={() => router.push('/products')}
-                className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow text-white hover:bg-gray-100 w-fit"
-                >
-                Shop School Essentials <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
+                    <Tractor className="w-8 h-8" />
+                    <span className="text-sm font-medium">RichField Farms</span>
+                  </div>
+                  <h1 className="text-3xl font-bold mb-4">Fresh from Farm to Table</h1>
+                  <p className="text-l mb-6 opacity-90">Premium organic produce delivered fresh daily</p>
+                  <Button onClick={() => router.push('/products')} className="bg-gradient-to-r from-green-600 to-emerald-700 shadow text-white hover:bg-gray-100 w-fit">
+                    Shop Fresh Now <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
                 </div>
                 <img 
-                  src="/images/hero-img.jpeg"
+                  src="https://res.cloudinary.com/djmnjen6v/image/upload/v1760550956/photo-1542838132-92c53300491e_wzy3c2.jpg"
                   alt="Fresh vegetables"
                   className="absolute right-0 top-0 h-full w-1/2 object-cover opacity-80"
                 />
@@ -194,8 +184,8 @@ const HomePage = () => {
                   Today only
                 </span>
 
-                <h2 className="text-3xl font-extrabold text-blue-900">
-                  School Daily Daily Deals
+                <h2 className="text-3xl font-extrabold text-green-900">
+                  Farm Fresh Daily Deals
                 </h2>
 
                 <p className="text-sm text-green-900/80 mt-1 max-w-md">
@@ -332,11 +322,11 @@ const HomePage = () => {
               </span>
 
               <h2 className="text-3xl font-extrabold text-green-900">
-                Popular school Products
+                Popular Farm Products
               </h2>
 
               <p className="text-sm text-green-900/80 mt-1">
-                picks loved by teachers and students in the school.
+                Fresh picks loved by shoppers across the farm marketplace.
               </p>
             </div>
 
@@ -374,8 +364,8 @@ const HomePage = () => {
       <section className="bg-blue-900 py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <School className="w-8 h-8 text-white" />
-            <h2 className="text-3xl font-bold text-white">Stay Updated With School Daily Deals</h2>
+            <Tractor className="w-8 h-8 text-white" />
+            <h2 className="text-3xl font-bold text-white">Stay Updated with Farm Fresh Deals</h2>
           </div>
           <p className="text-green-100 mb-8">Get the freshest produce delivered to your doorstep</p>
           
@@ -383,9 +373,9 @@ const HomePage = () => {
             <input 
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="flex-1 px-4 py-3 rounded-lg border-0 focus:ring-2 focus:ring-green-500 focus:outline-none"
             />
-            <Button className="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg font-semibold">
+            <Button className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg font-semibold">
               Subscribe
             </Button>
           </div>

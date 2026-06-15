@@ -3,6 +3,7 @@ import { AxiosInstance, AxiosError } from "axios";
 import toast from "react-hot-toast";
 import socket from "@/lib/socket";
 import { Ticket, TicketState, TicketActions, ApiResponse } from "./ticketTypes";
+import { CreateTicketPayload } from "./ticketTypes";
 import { useAuthStore } from "../auth/useAuthStore";
 
 type TicketStore = TicketState & TicketActions;
@@ -257,24 +258,25 @@ export const createTicketActions =
 
 
 
-    createTicket: async (ticketData) => {
+    createTicket: async (payload: CreateTicketPayload) => {
       set({ loading: true, error: undefined });
 
       try {
-        const res = await axiosInstance.post<{ success: boolean; data: Ticket }>("/tickets", ticketData);
+        // We send just the payload (subject, category, priority, message)
+        // The backend reads the user session and handles creating the full Ticket object
+        const res = await axiosInstance.post<{ success: boolean; data: Ticket }>("/tickets", payload);
 
         const newTicket = res.data.data;
 
         set((state) => ({
-          tickets: [...state.tickets, newTicket],
+          tickets: [newTicket, ...state.tickets], // Pro-tip: putting newTicket first shows it at the top of lists instantly!
         }));
 
-
-        return newTicket; // in case caller wants it
+        return newTicket; 
       } catch (err) {
         const error = err as AxiosError;
         set({ error: error.message || "Failed to create ticket" });
-        throw err; // optional, lets caller handle errors
+        throw err; 
       } finally {
         set({ loading: false });
       }

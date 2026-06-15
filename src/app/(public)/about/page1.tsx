@@ -39,9 +39,9 @@ export default function About() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="text-sm md:text-base mb-2 tracking-wide font-medium"
+            className="text-sm md:text-base mb-2 tracking-wide"
           >
-            HOME / ABOUT US
+            HOME / ABOUT
           </motion.h2>
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
@@ -49,7 +49,7 @@ export default function About() {
             transition={{ duration: 0.8, delay: 0.8 }}
             className="text-4xl md:text-5xl font-bold leading-tight"
           >
-            Connecting the GSS Gwagwalada Community
+            Our Story & Purpose
           </motion.h1>
         </motion.div>
       </section>
@@ -72,8 +72,8 @@ export default function About() {
                 className="relative w-full h-48 md:h-64 rounded-lg overflow-hidden shadow-lg"
               >
                 <Image
-                  src="/images/buns.jpg"
-                  alt="Tuck Shop Snacks"
+                  src="https://res.cloudinary.com/djmnjen6v/image/upload/v1760550955/photo-1500595046743-cd271d694d30_ffcvyk.jpg"
+                  alt="Fresh Fruits"
                   fill
                   className="object-cover"
                 />
@@ -85,8 +85,8 @@ export default function About() {
                 className="relative w-full h-48 md:h-64 rounded-lg overflow-hidden shadow-lg hidden md:block"
               >
                 <Image
-                  src="/images/cloth.jpg"
-                  alt="School Uniform Materials"
+                  src="https://res.cloudinary.com/djmnjen6v/image/upload/v1760732096/fish_ly0uix.jpg"
+                  alt="Fresh Fish"
                   fill
                   className="object-cover"
                 />
@@ -98,8 +98,8 @@ export default function About() {
                 className="relative w-full h-48 md:h-64 rounded-lg overflow-hidden shadow-lg hidden md:block col-span-2"
               >
                 <Image
-                  src="/images/ankara.jpg"
-                  alt="School Wear and House Fabrics"
+                  src="https://res.cloudinary.com/djmnjen6v/image/upload/v1760550956/photo-1542838132-92c53300491e_wzy3c2.jpg"
+                  alt="Farm Produce"
                   fill
                   className="object-cover"
                 />
@@ -115,24 +115,25 @@ export default function About() {
               className="md:w-1/2 mt-10 md:mt-0 text-gray-700"
             >
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900">
-                Convenience, Quality & School Pride
+                Feeding Families, Empowering Communities
               </h2>
               <p className="mb-4 leading-relaxed">
-                At <strong>GSS Gwagwalada Connect</strong>, we are modernizing how our 
-                school community accesses daily essentials. Established to support the vibrant student 
-                body and staff of Government Secondary School Gwagwalada, Abuja, our digital marketplace 
-                bridges the gap between verified campus vendors, parents, and students.
+                At <strong>Richfield Farms</strong>, we believe food should be fresh,
+                sustainable, and accessible to everyone. Our mission is to bridge the
+                gap between farm and table through responsible fish farming,
+                innovative processing, and direct-to-consumer delivery.
               </p>
               <p className="mb-4 leading-relaxed">
-                From fresh tuck shop treats and midday snacks to official school uniforms, custom 
-                house wear, textbooks, and stationery—we bring the entire school shop experience online. 
-                By prioritizing convenience, we help students spend less time in long store lines and 
-                more time focusing on their academic and personal growth.
+                From nurturing catfish in eco-friendly ponds to providing smoked and
+                fresh products across Abuja, we’re redefining local aquaculture. Our
+                focus on hygiene, traceability, and technology ensures customers enjoy
+                premium quality with every order.
               </p>
               <p className="leading-relaxed">
-                Beyond being a simple store, GSS Connect is a unified ecosystem. We empower local campus 
-                vendors, give parents a transparent window to purchase exact school specifications, and 
-                foster school spirit through accessible, premium-quality student gear.
+                Beyond fish, Richfield Farms is a movement — empowering local farmers,
+                creating jobs, and contributing to food security in Nigeria. Every
+                product we deliver represents our dedication to quality, community, and
+                growth.
               </p>
             </motion.div>
           </div>

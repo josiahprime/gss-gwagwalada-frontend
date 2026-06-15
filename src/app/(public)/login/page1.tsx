@@ -129,7 +129,7 @@ const Login = () => {
         {/* Left Side (hidden on mobile) */}
         <div className="hidden md:flex md:w-1/2 relative">
           <Image
-            src="/images/gss-gwagwalada-login.jpg"
+            src="https://res.cloudinary.com/djmnjen6v/image/upload/v1762093790/loginPageImg1_woqvmm.jpg"
             alt="Login background"
             fill
             priority
@@ -138,10 +138,10 @@ const Login = () => {
 
           <div className="absolute inset-0 flex flex-col justify-center text-white p-12 bg-black/50">
             <h1 className="text-3xl lg:text-4xl font-bold mb-4">
-              Gear Up For Class & Everything In Between.
+              Fresh Produce Straight From Local Farms To Your Home.
             </h1>
             <p className="text-lg">
-              Log in to shop official uniforms, textbooks, stationery, and classic tuck shop favorites.
+              Log in to shop quality farm produce you can trust.
             </p>
           </div>
         </div>
@@ -151,10 +151,9 @@ const Login = () => {
         <div className="flex-1 flex items-center justify-center bg-gray-50 p-6 sm:p-10">
           <div className="w-full max-w-md">
             {/* Branding */}
-            <p className="text-xl font-extrabold text-gray-800">
-              GSS GWAGWALADA
-              <span className="text-[#0070f3] font-medium ml-1">CONNECT</span>
-            </p>
+            <div className="uppercase text-2xl font-bold mb-4 text-center md:text-left">
+              Rich<span className="text-green-500">Field</span>
+            </div>
 
             <h3 className="text-xl mb-2 text-center md:text-left">Login</h3>
             <p className="mb-6 text-gray-600 text-center md:text-left">
