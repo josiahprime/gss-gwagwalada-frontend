@@ -48,8 +48,9 @@ const nextConfig: any = {
   },
 
   async rewrites() {
-    const backend =
-      process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "") || "http://localhost:5001";
+    const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5001";
+
+    const backend = rawBackendUrl.replace(/\/$/, "");
 
     return [
       {
