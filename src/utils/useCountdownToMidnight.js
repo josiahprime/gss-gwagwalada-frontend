@@ -22,7 +22,7 @@ export function useDealCountdown() {
 
         timerRef.current = setInterval(tick, 1000);
       } catch (err) {
-        console.error("Failed to sync with server time:", err);
+        console.error("Failed to syc with server time:", err);
       }
     }
 
