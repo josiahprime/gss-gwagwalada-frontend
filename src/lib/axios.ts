@@ -4,7 +4,7 @@ import socket from './socket';
 
 export const axiosInstance = axios.create({
   // ✅ Change this to a relative path. Next.js rewrites will handle the rest!
-  baseURL: 'https://gss-gwagwalada-backend-production.up.railway.app',
+  baseURL: 'https://gss-gwagwalada-backend-production.up.railway.app/api',
   withCredentials: true,
 });
 let isRefreshing = false;
