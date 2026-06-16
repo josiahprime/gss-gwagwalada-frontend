@@ -48,9 +48,7 @@ const nextConfig: any = {
   },
 
   async rewrites() {
-    const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5001";
-
-    const backend = rawBackendUrl.replace(/\/$/, "");
+    const backend = "https://your-actual-railway-url-here.up.railway.app";
 
     return [
       {
