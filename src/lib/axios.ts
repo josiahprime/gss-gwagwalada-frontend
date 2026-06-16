@@ -3,10 +3,10 @@ import { useAuthStore } from '../store/auth/useAuthStore';
 import socket from './socket';
 
 export const axiosInstance = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api`,
+  // ✅ Change this to a relative path. Next.js rewrites will handle the rest!
+  baseURL: '/api',
   withCredentials: true,
 });
-
 let isRefreshing = false;
 let failedQueue: { resolve: (value?: unknown) => void; reject: (reason?: unknown) => void }[] = [];
 
