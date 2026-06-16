@@ -11,16 +11,18 @@ interface TicketInfoBannerProps {
 const TicketInfoBanner = ({ ticket, onBack }: TicketInfoBannerProps) => {
   const categoryLabel = categories.find(c => c.value === ticket.category)?.label || ticket.category;
 
-  const statusExplanations = {
+  const statusExplanations: Record<string, string> = {
     open: 'Our support team is reviewing your message.',
     pending: 'Our support team has replied and is waiting for your response.',
-    resolved: 'This ticket has been marked as resolved.'
+    resolved: 'This ticket has been marked as resolved.',
+    closed: 'This ticket is closed and can no longer be replied to.' // 👈 Add this
   };
 
-  const statusStyles = {
+  const statusStyles: Record<string, string> = {
     open: 'bg-amber-50 border-amber-200',
     pending: 'bg-green-50 border-green-200',
-    resolved: 'bg-gray-50 border-gray-200'
+    resolved: 'bg-gray-50 border-gray-200',
+    closed: 'bg-red-50 border-red-200' // 👈 Add this (or whatever colors you prefer)
   };
 
   return (
