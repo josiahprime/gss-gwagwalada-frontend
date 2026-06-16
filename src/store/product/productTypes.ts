@@ -251,7 +251,7 @@ export interface ProductActions {
   ) => Promise<"added" | "removed">;
 
 
-  fetchProducts: (options?: { loadMore?: boolean, caller?:string }) => Promise<void>;
+  fetchProducts: (options?: { loadMore?: boolean, caller?:string, category?: string; }) => Promise<void>;
 
   setCategory: (category: string) => void;
   setFilters: (filters: Partial<ProductQuery>) => void;
