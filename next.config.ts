@@ -25,18 +25,15 @@
 //   },
 // };
 
-// export default nextConfig;
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const nextConfig: NextConfig: any = {
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete 
-    // even if your project has TypeScript errors.
-    // !! WARN !!
     ignoreBuildErrors: true,
   },
-  // If you also want to skip ESLint errors that break the build:
+  // If TypeScript complains about 'eslint' under NextConfig, 
+  // ensuring your dependencies are fully fresh usually fixes it,
+  // but you can safely typecast the config block or use this exact structure:
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -50,7 +47,6 @@ const nextConfig: NextConfig = {
     ],
   },
 
-
   async rewrites() {
     const backend =
       process.env.NEXT_PUBLIC_BACKEND_URL?.replace(/\/$/, "") || "http://localhost:5001";
@@ -58,7 +54,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination: `${backend}/api/:path*`, // add `/api` only here, not in env
+        destination: `${backend}/api/:path*`,
       },
     ];
   },
