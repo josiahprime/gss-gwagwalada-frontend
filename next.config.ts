@@ -27,7 +27,7 @@
 
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig: any = {
+const nextConfig: any = {
   typescript: {
     ignoreBuildErrors: true,
   },
