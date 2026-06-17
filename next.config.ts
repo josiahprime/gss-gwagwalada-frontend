@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
+    let lala = ''
     let envUrl = process.env.NEXT_PUBLIC_SERVER_API_URL || "";
     
     // Clean up any stray quotes, spaces, or duplicate slashes
