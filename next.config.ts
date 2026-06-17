@@ -49,7 +49,7 @@ const nextConfig: any = {
 
   async rewrites() {
     // const backend = "https://your-actual-railway-url-here.up.railway.app";
-    const backend = process.env.NEXT_PUBLIC_BACKEND_URL || "gss-gwagwalada-backend-production.up.railway.app/api";
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL || "https://gss-gwagwalada-backend-production.up.railway.app/api";
 
     return [
       {
