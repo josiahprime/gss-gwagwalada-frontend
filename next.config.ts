@@ -27,15 +27,9 @@
 
 import type { NextConfig } from "next";
 
-const nextConfig: any = {
+const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
-  },
-  // If TypeScript complains about 'eslint' under NextConfig, 
-  // ensuring your dependencies are fully fresh usually fixes it,
-  // but you can safely typecast the config block or use this exact structure:
-  eslint: {
-    ignoreDuringBuilds: true,
   },
   images: {
     remotePatterns: [
@@ -48,13 +42,19 @@ const nextConfig: any = {
   },
 
   async rewrites() {
-    // const backend = "https://your-actual-railway-url-here.up.railway.app";
-    const backend = process.env.NEXT_PUBLIC_BACKEND_URL || "https://gss-gwagwalada-backend-production.up.railway.app/api";
+    // 1. Check if the environment variable is a valid, non-empty HTTP string
+    const envUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const isValid = envUrl && envUrl.trim() !== "" && envUrl.startsWith("http");
+
+    // 2. Set the backend based on that strict validation
+    const backend = isValid 
+      ? envUrl 
+      : "https://gss-gwagwalada-backend-production.up.railway.app/api";
 
     return [
       {
         source: "/api/:path*",
-        destination: `${backend}/api/:path*`,
+        destination: `${backend}/:path*`,
       },
     ];
   },
