@@ -42,14 +42,15 @@ const nextConfig: NextConfig = {
   },
 
   async rewrites() {
-    // 1. Check if the environment variable is a valid, non-empty HTTP string
-    const envUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const isValid = envUrl && envUrl.trim() !== "" && envUrl.startsWith("http");
+    let envUrl = process.env.NEXT_PUBLIC_SERVER_API_URL || "";
+    
+    // Clean up any stray quotes, spaces, or duplicate slashes
+    envUrl = envUrl.trim().replace(/['"]/g, "");
 
-    // 2. Set the backend based on that strict validation
-    const backend = isValid 
-      ? envUrl 
-      : "https://gss-gwagwalada-backend-production.up.railway.app/api";
+    // Force the backend URL to use a solid fallback if it's missing or broken
+    const backend = (envUrl.startsWith("http://") || envUrl.startsWith("https://"))
+      ? envUrl
+      : "https://gss-gwagwalada-backend-production.up.railway.app"; 
 
     return [
       {
