@@ -10,7 +10,7 @@ import socket from './socket';
 
 export const axiosInstance = axios.create({
   // ✅ Change this to a relative path. Next.js rewrites will handle the rest!
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  baseURL: "/api",
   withCredentials: true,
 });
 
