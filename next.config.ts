@@ -54,7 +54,7 @@ const nextConfig: any = {
     return [
       {
         source: "/api/:path*",
-        destination: `${backend}/api/:path*`,
+        destination: `${backend}/:path*`,
       },
     ];
   },
