@@ -48,7 +48,8 @@ const nextConfig: any = {
   },
 
   async rewrites() {
-    const backend = "https://your-actual-railway-url-here.up.railway.app";
+    // const backend = "https://your-actual-railway-url-here.up.railway.app";
+    const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     return [
       {
