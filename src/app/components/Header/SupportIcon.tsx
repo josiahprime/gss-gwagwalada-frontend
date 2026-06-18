@@ -7,7 +7,7 @@ import { Headset } from 'lucide-react'; // Clean customer care headset icon
 export default function SupportIcon() {
   return (
     <Link 
-      href="/support" 
+      href="/customer-support" 
       className="relative text-2xl text-gray-700 block"
       aria-label="Contact Customer Support"
     >
