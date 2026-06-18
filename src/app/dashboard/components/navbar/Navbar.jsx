@@ -14,6 +14,8 @@ const Navbar = () => {
   const theme = useThemeStore((s) => s.theme);
   const toggleTheme = useThemeStore((s) => s.toggle);
 
+  const desktopText =  "GSS GWAGWALADA";
+
   const navbarTheme =
   theme === "dark"
     ? `
@@ -41,9 +43,16 @@ const Navbar = () => {
       `}
     >
       <div className="w-full px-5 flex items-center justify-between">
-        <Link href="/" className="uppercase text-xl font-bold">
-          Rich<span className="text-green-500">Field</span>
+        <Link href="/" className="max-sm:hidden flex items-center gap-2">
+          <img src="/images/gss-logo.png" alt="logo" className="w-6" />
+          <p className="text-lg font-extrabold text-gray-800">
+            {desktopText}
+              <span className="text-[#0070f3] font-medium ml-1">CONNECT</span>
+          </p>
         </Link>
+        {/* <Link href="/" className="uppercase text-xl font-bold">
+          Rich<span className="text-green-500">Field</span>
+        </Link> */}
 
         <div className="flex items-center">
           <div className="flex items-center mr-5">
